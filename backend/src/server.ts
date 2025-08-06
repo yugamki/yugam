@@ -16,6 +16,7 @@ import paymentRoutes from './routes/payments'
 import notificationRoutes from './routes/notifications'
 import accommodationRoutes from './routes/accommodations'
 import contentRoutes from './routes/content'
+import adminRoutes from './routes/admin'
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler'
@@ -73,6 +74,7 @@ app.use('/api/payments', paymentRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/accommodations', accommodationRoutes)
 app.use('/api/content', contentRoutes)
+app.use('/api/admin', adminRoutes)
 
 // Error handling middleware
 app.use(notFound)

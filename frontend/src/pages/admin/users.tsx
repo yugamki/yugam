@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, MoreHorizontal, Edit, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,42 +36,19 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-// Mock data - replace with actual API calls
-const mockUsers = [
-  {
-    id: '1',
-    firstName: 'Yugam',
-    lastName: 'Admin',
-    email: 'admin@yugam.in',
-    role: 'OVERALL_ADMIN',
-    college: 'Admin College',
-    createdAt: '2024-01-15',
-    registrations: 0,
-    createdEvents: 0
-  },
-  {
-    id: '2',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
-    role: 'EVENTS_LEAD',
-    college: 'Tech University',
-    createdAt: '2024-01-20',
-    registrations: 5,
-    createdEvents: 12
-  },
-  {
-    id: '3',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane@example.com',
-    role: 'WORKSHOPS_LEAD',
-    college: 'Engineering College',
-    createdAt: '2024-01-25',
-    registrations: 3,
-    createdEvents: 8
+interface User {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: string
+  college?: string
+  createdAt: string
+  _count: {
+    registrations: number
+    createdEvents: number
   }
-]
+}
 
 const userRoles = [
   { value: 'PARTICIPANT', label: 'Participant' },
@@ -100,7 +77,8 @@ const getRoleBadgeVariant = (role: string) => {
 }
 
 export function AdminUsers() {
-  const [users, setUsers] = useState(mockUsers)
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [isAddUserOpen, setIsAddUserOpen] = useState(false)
   const [newUser, setNewUser] = useState({
@@ -114,6 +92,30 @@ export function AdminUsers() {
     department: ''
   })
 
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users)
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const filteredUsers = users.filter(user =>
     user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -121,31 +123,61 @@ export function AdminUsers() {
     user.college?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const handleAddUser = () => {
-    // Mock add user - replace with actual API call
-    const user = {
-      id: Date.now().toString(),
-      ...newUser,
-      createdAt: new Date().toISOString().split('T')[0],
-      registrations: 0,
-      createdEvents: 0
+  const handleAddUser = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newUser),
+      })
+
+      if (response.ok) {
+        await fetchUsers()
+        setNewUser({
+          firstName: '',
+          lastName: '',
+          email: '',
+          role: 'PARTICIPANT',
+          phone: '',
+          college: '',
+          year: '',
+          department: ''
+        })
+        setIsAddUserOpen(false)
+      }
+    } catch (error) {
+      console.error('Error adding user:', error)
     }
-    setUsers([...users, user])
-    setNewUser({
-      firstName: '',
-      lastName: '',
-      email: '',
-      role: 'PARTICIPANT',
-      phone: '',
-      college: '',
-      year: '',
-      department: ''
-    })
-    setIsAddUserOpen(false)
   }
 
-  const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter(user => user.id !== userId))
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        await fetchUsers()
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading users...</div>
+      </div>
+    )
   }
 
   return (
@@ -300,7 +332,7 @@ export function AdminUsers() {
                     <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="text-sm text-gray-500">
-                        {user.registrations} registrations • {user.createdEvents} events
+                        {user._count.registrations} registrations • {user._count.createdEvents} events
                       </div>
                     </TableCell>
                     <TableCell>

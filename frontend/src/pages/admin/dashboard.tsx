@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,93 +13,124 @@ import {
   AlertCircle
 } from 'lucide-react'
 
-const stats = [
-  {
-    title: 'Total Participants',
-    value: '2,547',
-    change: '+12.5%',
-    changeType: 'positive',
-    icon: Users,
-  },
-  {
-    title: 'Active Events',
-    value: '45',
-    change: '+3',
-    changeType: 'positive',
-    icon: Calendar,
-  },
-  {
-    title: 'Revenue',
-    value: '₹8,45,000',
-    change: '+18.2%',
-    changeType: 'positive',
-    icon: CreditCard,
-  },
-  {
-    title: 'Workshops',
-    value: '28',
-    change: '+5',
-    changeType: 'positive',
-    icon: GraduationCap,
-  },
-]
+interface DashboardStats {
+  totalParticipants: number
+  activeEvents: number
+  revenue: number
+  workshops: number
+}
 
-const recentActivities = [
-  {
-    id: 1,
-    type: 'registration',
-    message: 'New participant registered for Robotics Competition',
-    time: '2 minutes ago',
-    status: 'success'
-  },
-  {
-    id: 2,
-    type: 'payment',
-    message: 'Payment received for Web Development Workshop',
-    time: '5 minutes ago',
-    status: 'success'
-  },
-  {
-    id: 3,
-    type: 'event',
-    message: 'New event "AI/ML Workshop" submitted for approval',
-    time: '10 minutes ago',
-    status: 'pending'
-  },
-  {
-    id: 4,
-    type: 'accommodation',
-    message: 'Accommodation request approved for John Doe',
-    time: '15 minutes ago',
-    status: 'success'
-  },
-]
+interface Activity {
+  id: string
+  type: string
+  message: string
+  time: string
+  status: string
+}
 
-const pendingApprovals = [
-  {
-    id: 1,
-    title: 'Machine Learning Workshop',
-    type: 'Workshop',
-    submittedBy: 'Dr. Sarah Johnson',
-    submittedAt: '2 hours ago'
-  },
-  {
-    id: 2,
-    title: 'Cybersecurity Competition',
-    type: 'Event',
-    submittedBy: 'Prof. Mike Chen',
-    submittedAt: '4 hours ago'
-  },
-  {
-    id: 3,
-    title: 'Cultural Dance Performance',
-    type: 'Event',
-    submittedBy: 'Priya Sharma',
-    submittedAt: '6 hours ago'
-  },
-]
+interface PendingApproval {
+  id: string
+  title: string
+  type: string
+  submittedBy: string
+  submittedAt: string
+}
 
 export function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [activities, setActivities] = useState<Activity[]>([])
+  const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Fetch dashboard stats
+      const statsResponse = await fetch(`${import.meta.env.VITE_API_URL}/admin/dashboard/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      // Fetch recent activities
+      const activitiesResponse = await fetch(`${import.meta.env.VITE_API_URL}/admin/dashboard/activities`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      // Fetch pending approvals
+      const approvalsResponse = await fetch(`${import.meta.env.VITE_API_URL}/admin/dashboard/pending-approvals`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json()
+        setStats(statsData)
+      }
+
+      if (activitiesResponse.ok) {
+        const activitiesData = await activitiesResponse.json()
+        setActivities(activitiesData.activities)
+      }
+
+      if (approvalsResponse.ok) {
+        const approvalsData = await approvalsResponse.json()
+        setPendingApprovals(approvalsData.approvals)
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading dashboard...</div>
+      </div>
+    )
+  }
+
+  const statsCards = [
+    {
+      title: 'Total Participants',
+      value: stats?.totalParticipants?.toString() || '0',
+      change: '+12.5%',
+      changeType: 'positive',
+      icon: Users,
+    },
+    {
+      title: 'Active Events',
+      value: stats?.activeEvents?.toString() || '0',
+      change: '+3',
+      changeType: 'positive',
+      icon: Calendar,
+    },
+    {
+      title: 'Revenue',
+      value: `₹${stats?.revenue?.toLocaleString() || '0'}`,
+      change: '+18.2%',
+      changeType: 'positive',
+      icon: CreditCard,
+    },
+    {
+      title: 'Workshops',
+      value: stats?.workshops?.toString() || '0',
+      change: '+5',
+      changeType: 'positive',
+      icon: GraduationCap,
+    },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -117,7 +149,7 @@ export function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {statsCards.map((stat) => {
           const Icon = stat.icon
           return (
             <Card key={stat.title}>
@@ -154,22 +186,28 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-4">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.status === 'success' ? 'bg-green-500' : 
-                    activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {activity.message}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {activity.time}
-                    </p>
+              {activities.length > 0 ? (
+                activities.map((activity) => (
+                  <div key={activity.id} className="flex items-center space-x-4">
+                    <div className={`w-2 h-2 rounded-full ${
+                      activity.status === 'success' ? 'bg-green-500' : 
+                      activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {activity.message}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {activity.time}
+                      </p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  No recent activities
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -187,23 +225,29 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {pendingApprovals.map((item) => (
-                <div key={item.id} className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {item.title}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {item.type} • by {item.submittedBy} • {item.submittedAt}
-                    </p>
+              {pendingApprovals.length > 0 ? (
+                pendingApprovals.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {item.type} • by {item.submittedBy} • {item.submittedAt}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline">
+                        Review
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline">
-                      Review
-                    </Button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  No pending approvals
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>

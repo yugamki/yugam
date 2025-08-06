@@ -26,7 +26,6 @@ export function useAuth() {
   return context
 }
 
-// Mock implementation for now - replace with actual API calls
 export function useAuthState() {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
@@ -46,20 +45,29 @@ export function useAuthState() {
   }, [])
 
   const login = async (email: string, password: string) => {
-    // Mock login - replace with actual API call
-    const mockUser = {
-      id: '1',
-      email,
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'OVERALL_ADMIN'
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Login failed')
+      }
+
+      const data = await response.json()
+      
+      setUser(data.user)
+      setToken(data.token)
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+    } catch (error) {
+      console.error('Login error:', error)
+      throw error
     }
-    const mockToken = 'mock-token'
-    
-    setUser(mockUser)
-    setToken(mockToken)
-    localStorage.setItem('token', mockToken)
-    localStorage.setItem('user', JSON.stringify(mockUser))
   }
 
   const logout = () => {

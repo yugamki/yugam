@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,86 +15,121 @@ import {
   AlertCircle
 } from 'lucide-react'
 
-const stats = [
-  {
-    title: 'Total Workshops',
-    value: '28',
-    change: '+2 this week',
-    changeType: 'positive',
-    icon: GraduationCap,
-  },
-  {
-    title: 'Active Workshops',
-    value: '22',
-    change: '+3 from last month',
-    changeType: 'positive',
-    icon: CheckCircle,
-  },
-  {
-    title: 'Total Participants',
-    value: '856',
-    change: '+15.8%',
-    changeType: 'positive',
-    icon: Users,
-  },
-  {
-    title: 'Pending Approvals',
-    value: '5',
-    change: '1 urgent',
-    changeType: 'warning',
-    icon: AlertCircle,
-  },
-]
+interface WorkshopStats {
+  totalWorkshops: number
+  activeWorkshops: number
+  totalParticipants: number
+  pendingApprovals: number
+}
 
-const recentWorkshops = [
-  {
-    id: 1,
-    title: 'Machine Learning Fundamentals',
-    category: 'Technical',
-    status: 'PUBLISHED',
-    registrations: 45,
-    maxRegistrations: 50,
-    startDate: '2024-02-16',
-    coordinator: 'Dr. AI Expert'
-  },
-  {
-    id: 2,
-    title: 'Digital Marketing Strategy',
-    category: 'Business',
-    status: 'PENDING_APPROVAL',
-    registrations: 0,
-    maxRegistrations: 30,
-    startDate: '2024-02-22',
-    coordinator: 'Ms. Marketing'
-  },
-  {
-    id: 3,
-    title: 'Photography Masterclass',
-    category: 'Creative',
-    status: 'PUBLISHED',
-    registrations: 28,
-    maxRegistrations: 35,
-    startDate: '2024-02-19',
-    coordinator: 'Mr. Photographer'
-  },
-]
-
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case 'PUBLISHED':
-      return <Badge variant="success">Published</Badge>
-    case 'PENDING_APPROVAL':
-      return <Badge variant="warning">Pending</Badge>
-    case 'DRAFT':
-      return <Badge variant="secondary">Draft</Badge>
-    case 'CANCELLED':
-      return <Badge variant="destructive">Cancelled</Badge>
-    default:
-      return <Badge variant="outline">{status}</Badge>
-  }
+interface Workshop {
+  id: string
+  title: string
+  category: string
+  status: string
+  registrations: number
+  maxRegistrations: number
+  startDate: string
+  coordinator: string
 }
 
 export function WorkshopsDashboard() {
+  const [stats, setStats] = useState<WorkshopStats | null>(null)
+  const [workshops, setWorkshops] = useState<Workshop[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchWorkshopsData()
+  }, [])
+
+  const fetchWorkshopsData = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Fetch workshops stats
+      const statsResponse = await fetch(`${import.meta.env.VITE_API_URL}/admin/workshops/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      // Fetch recent workshops
+      const workshopsResponse = await fetch(`${import.meta.env.VITE_API_URL}/admin/workshops?limit=5`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json()
+        setStats(statsData)
+      }
+
+      if (workshopsResponse.ok) {
+        const workshopsData = await workshopsResponse.json()
+        setWorkshops(workshopsData.workshops)
+      }
+    } catch (error) {
+      console.error('Error fetching workshops data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'PUBLISHED':
+        return <Badge variant="success">Published</Badge>
+      case 'PENDING_APPROVAL':
+        return <Badge variant="warning">Pending</Badge>
+      case 'DRAFT':
+        return <Badge variant="secondary">Draft</Badge>
+      case 'CANCELLED':
+        return <Badge variant="destructive">Cancelled</Badge>
+      default:
+        return <Badge variant="outline">{status}</Badge>
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading workshops dashboard...</div>
+      </div>
+    )
+  }
+
+  const statsCards = [
+    {
+      title: 'Total Workshops',
+      value: stats?.totalWorkshops?.toString() || '0',
+      change: '+2 this week',
+      changeType: 'positive',
+      icon: GraduationCap,
+    },
+    {
+      title: 'Active Workshops',
+      value: stats?.activeWorkshops?.toString() || '0',
+      change: '+3 from last month',
+      changeType: 'positive',
+      icon: CheckCircle,
+    },
+    {
+      title: 'Total Participants',
+      value: stats?.totalParticipants?.toString() || '0',
+      change: '+15.8%',
+      changeType: 'positive',
+      icon: Users,
+    },
+    {
+      title: 'Pending Approvals',
+      value: stats?.pendingApprovals?.toString() || '0',
+      change: '1 urgent',
+      changeType: 'warning',
+      icon: AlertCircle,
+    },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -112,7 +148,7 @@ export function WorkshopsDashboard() {
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {statsCards.map((stat) => {
           const Icon = stat.icon
           return (
             <Card key={stat.title}>
@@ -149,32 +185,38 @@ export function WorkshopsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentWorkshops.map((workshop) => (
-                <div key={workshop.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {workshop.title}
-                      </h4>
-                      {getStatusBadge(workshop.status)}
+              {workshops.length > 0 ? (
+                workshops.map((workshop) => (
+                  <div key={workshop.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {workshop.title}
+                        </h4>
+                        {getStatusBadge(workshop.status)}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {workshop.category} • by {workshop.coordinator}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {workshop.registrations}/{workshop.maxRegistrations} registered • {new Date(workshop.startDate).toLocaleDateString()}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {workshop.category} • by {workshop.coordinator}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {workshop.registrations}/{workshop.maxRegistrations} registered • {new Date(workshop.startDate).toLocaleDateString()}
-                    </p>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline">
-                      <Eye className="h-3 w-3" />
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  No workshops found
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -200,7 +242,7 @@ export function WorkshopsDashboard() {
                 <AlertCircle className="mr-3 h-5 w-5" />
                 <div className="text-left">
                   <div className="font-medium">Review Pending Workshops</div>
-                  <div className="text-sm text-muted-foreground">5 workshops waiting for approval</div>
+                  <div className="text-sm text-muted-foreground">{stats?.pendingApprovals || 0} workshops waiting for approval</div>
                 </div>
               </Button>
               <Button variant="outline" className="justify-start h-auto p-4">
