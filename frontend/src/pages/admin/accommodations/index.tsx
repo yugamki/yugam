@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Search, MoreHorizontal, CheckCircle, XCircle, Building, Users } from 'lucide-react'
+import { Plus, Search, CheckCircle, Building } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,12 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+
 import {
   Dialog,
   DialogContent,

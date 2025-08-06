@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Send, Mail, MessageSquare, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { Send, Mail, MessageSquare, CheckCircle, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

@@ -28,19 +28,20 @@ dotenv.config()
 const app = express()
 const prisma = new PrismaClient()
 
+// Trust proxy for rate limiting behind load balancers
+app.set('trust proxy', 1)
+
 // Security middleware
 app.use(helmet())
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yugam2025.com'] 
-    : ['http://localhost:5173', 'http://localhost:3000'],
+  origin: '*',
   credentials: true
 }))
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 10000, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.'
 })
 app.use('/api/', limiter)
@@ -58,7 +59,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
@@ -100,7 +101,8 @@ process.on('SIGINT', async () => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)
   console.log(`📊 Environment: ${process.env.NODE_ENV}`)
-  console.log(`🔗 API URL: http://localhost:${PORT}/api`)
+  console.log(`🔗 API URL: https://yugam-2025-new-site-backend.onrender.com/api`)
+  console.log(`🔗 API Health: https://yugam-2025-new-site-backend.onrender.com/api/health`)
 })
 
 export default app

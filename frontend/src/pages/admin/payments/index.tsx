@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, MoreHorizontal, RefreshCw, DollarSign, CreditCard, TrendingUp, AlertCircle } from 'lucide-react'
+import { Search, MoreHorizontal, RefreshCw, DollarSign, CreditCard, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -25,9 +27,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -383,7 +383,7 @@ export function PaymentsManagement() {
                             <DropdownMenuItem 
                               onClick={() => {
                                 setSelectedPayment(payment)
-                                setRefundAmount((payment.amount - payment.refundAmount).toString())
+                                setRefundAmount((payment.amount - (payment.refundAmount || 0)).toString())
                                 setIsRefundDialogOpen(true)
                               }}
                             >

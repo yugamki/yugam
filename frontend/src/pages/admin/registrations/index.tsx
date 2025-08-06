@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Users, Calendar, CreditCard, CheckCircle, XCircle, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Search, Users, CreditCard, CheckCircle, Clock } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

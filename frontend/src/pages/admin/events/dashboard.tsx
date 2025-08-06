@@ -6,12 +6,10 @@ import {
   Calendar, 
   Users, 
   TrendingUp, 
-  Clock,
   Plus,
   Eye,
   Edit,
   CheckCircle,
-  XCircle,
   AlertCircle
 } from 'lucide-react'
 

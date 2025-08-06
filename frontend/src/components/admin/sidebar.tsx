@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { 
   Calendar, 
@@ -16,7 +15,6 @@ import {
   Building
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 
 // Navigation based on user role
 const getNavigation = (userRole: string) => {
@@ -136,11 +134,7 @@ export function AdminSidebar({ collapsed = false, onToggle, userRole = 'PARTICIP
                 {!collapsed && (
                   <>
                     <span className="ml-3">{item.name}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {item.badge}
-                      </Badge>
-                    )}
+
                   </>
                 )}
               </Link>

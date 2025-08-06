@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Calendar, Users, Trophy, Sparkles, Clock, MapPin, Star, Zap, Award, Globe } from 'lucide-react'
+import { ArrowRight, Calendar, Users, Trophy, Sparkles, Clock, Star, Zap, Award, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 const features = [
