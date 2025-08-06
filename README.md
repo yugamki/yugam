@@ -130,9 +130,9 @@ yugam-2025/
    ```
 
 6. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:5000
-   - API Health Check: http://localhost:5000/health
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:3000
+   - API Health Check: http://localhost:3000/health
 
 ## 🎨 Design Features
 
