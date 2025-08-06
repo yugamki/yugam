@@ -1,0 +1,311 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PARTICIPANT
+  EVENT_COORDINATOR
+  WORKSHOP_COORDINATOR
+  EVENTS_LEAD
+  WORKSHOPS_LEAD
+  SOFTWARE_ADMIN
+  OVERALL_ADMIN
+}
+
+enum EventType {
+  GENERAL
+  PAID
+  COMBO
+}
+
+enum EventMode {
+  INDIVIDUAL
+  TEAM
+}
+
+enum EventStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum AccommodationType {
+  SINGLE_ROOM
+  DOUBLE_ROOM
+  DORMITORY
+  EXTERNAL
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  firstName         String
+  lastName          String
+  phone             String?
+  college           String?
+  year              String?
+  department        String?
+  role              UserRole  @default(PARTICIPANT)
+  isEmailVerified   Boolean   @default(false)
+  profileImage      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  createdEvents     Event[]   @relation("EventCreator")
+  managedEvents     Event[]   @relation("EventManager")
+  registrations     Registration[]
+  teamMemberships   TeamMember[]
+  createdTeams      Team[]    @relation("TeamCreator")
+  payments          Payment[]
+  notifications     UserNotification[]
+  accommodation     Accommodation?
+
+  @@map("users")
+}
+
+model Event {
+  id                    String        @id @default(cuid())
+  title                 String
+  description           String
+  domain                String
+  category              String
+  startDate             DateTime
+  endDate               DateTime
+  duration              Int           // in days (1, 2, or 3)
+  eventType             EventType
+  mode                  EventMode
+  minTeamSize           Int?
+  maxTeamSize           Int?
+  expectedParticipants  Int
+  feePerPerson          Float?
+  feePerTeam            Float?
+  status                EventStatus   @default(DRAFT)
+  isWorkshop            Boolean       @default(false)
+  venue                 String?
+  maxRegistrations      Int?
+  currentRegistrations  Int           @default(0)
+  imageUrl              String?
+  rules                 String?
+  prizes                String?
+  contactInfo           String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  // Relations
+  creator               User          @relation("EventCreator", fields: [creatorId], references: [id])
+  creatorId             String
+  manager               User?         @relation("EventManager", fields: [managerId], references: [id])
+  managerId             String?
+  
+  registrations         Registration[]
+  teams                 Team[]
+  forms                 EventForm[]
+  payments              Payment[]
+
+  @@map("events")
+}
+
+model EventForm {
+  id          String    @id @default(cuid())
+  eventId     String
+  title       String
+  description String?
+  fields      Json      // Dynamic form fields
+  isRequired  Boolean   @default(true)
+  showBefore  Boolean   @default(true) // Show before payment
+  showAfter   Boolean   @default(false) // Show after payment
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  responses   FormResponse[]
+
+  @@map("event_forms")
+}
+
+model FormResponse {
+  id        String    @id @default(cuid())
+  formId    String
+  userId    String
+  responses Json      // User responses to form fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  form      EventForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, userId])
+  @@map("form_responses")
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  name        String
+  eventId     String
+  creatorId   String
+  maxMembers  Int
+  isPublic    Boolean   @default(true)
+  joinCode    String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  creator     User      @relation("TeamCreator", fields: [creatorId], references: [id])
+  members     TeamMember[]
+  registration Registration?
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String    @id @default(cuid())
+  teamId    String
+  userId    String
+  isLeader  Boolean   @default(false)
+  joinedAt  DateTime  @default(now())
+
+  // Relations
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model Registration {
+  id              String              @id @default(cuid())
+  userId          String?
+  teamId          String?
+  eventId         String
+  status          RegistrationStatus  @default(PENDING)
+  registeredAt    DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relations
+  user            User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team            Team?               @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  event           Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  payment         Payment?
+
+  @@unique([teamId])
+  @@map("registrations")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  userId          String
+  eventId         String
+  registrationId  String        @unique
+  amount          Float
+  currency        String        @default("INR")
+  status          PaymentStatus @default(PENDING)
+  paymentMethod   String?
+  transactionId   String?
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  failureReason   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  user            User          @relation(fields: [userId], references: [id])
+  event           Event         @relation(fields: [eventId], references: [id])
+  registration    Registration  @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  title       String
+  message     String
+  type        String    // 'registration', 'payment', 'event_update', etc.
+  targetRole  UserRole?
+  targetCategory String?
+  targetEventId String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  userNotifications UserNotification[]
+
+  @@map("notifications")
+}
+
+model UserNotification {
+  id             String    @id @default(cuid())
+  userId         String
+  notificationId String
+  isRead         Boolean   @default(false)
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, notificationId])
+  @@map("user_notifications")
+}
+
+model Accommodation {
+  id              String            @id @default(cuid())
+  userId          String            @unique
+  type            AccommodationType
+  checkInDate     DateTime
+  checkOutDate    DateTime
+  roomNumber      String?
+  roommates       String[]          // Array of user IDs
+  specialRequests String?
+  isConfirmed     Boolean           @default(false)
+  totalCost       Float
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accommodations")
+}
+
+model Content {
+  id          String    @id @default(cuid())
+  key         String    @unique // e.g., 'homepage_hero', 'about_us', etc.
+  title       String
+  content     String    // HTML content
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("content")
+}
