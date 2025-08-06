@@ -17,7 +17,7 @@ async function main() {
       password: hashedPassword,
       firstName: 'Yugam',
       lastName: 'Admin',
-      role: UserRole.ADMIN,
+      role: UserRole.OVERALL_ADMIN,
       isEmailVerified: true,
       yugamId: 'YUG26-00001',
       qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=YUG26-00001'

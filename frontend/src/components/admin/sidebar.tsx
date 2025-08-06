@@ -18,26 +18,73 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
-const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: Home },
-  { name: 'Events', href: '/admin/events', icon: Calendar, badge: '12' },
-  { name: 'Workshops', href: '/admin/workshops', icon: GraduationCap, badge: '8' },
-  { name: 'Participants', href: '/admin/participants', icon: Users, badge: '2.5k' },
-  { name: 'Payments', href: '/admin/payments', icon: CreditCard, badge: '45' },
-  { name: 'Accommodations', href: '/admin/accommodations', icon: Building, badge: '156' },
-  { name: 'Notifications', href: '/admin/notifications', icon: Bell },
-  { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
-  { name: 'Content', href: '/admin/content', icon: FileText },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
-]
+// Navigation based on user role
+const getNavigation = (userRole: string) => {
+  const baseNavigation = [
+    { name: 'Dashboard', href: '/admin', icon: Home },
+  ]
+
+  if (userRole === 'OVERALL_ADMIN' || userRole === 'SOFTWARE_ADMIN' || userRole === 'ADMIN') {
+    return [
+      ...baseNavigation,
+      { name: 'Events', href: '/admin/events', icon: Calendar },
+      { name: 'Workshops', href: '/admin/workshops', icon: GraduationCap },
+      { name: 'Participants', href: '/admin/participants', icon: Users },
+      { name: 'Payments', href: '/admin/payments', icon: CreditCard },
+      { name: 'Accommodations', href: '/admin/accommodations', icon: Building },
+      { name: 'Notifications', href: '/admin/notifications', icon: Bell },
+      { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
+      { name: 'Content', href: '/admin/content', icon: FileText },
+      { name: 'Settings', href: '/admin/settings', icon: Settings },
+    ]
+  }
+
+  if (userRole === 'EVENTS_LEAD') {
+    return [
+      ...baseNavigation,
+      { name: 'Events', href: '/admin/events', icon: Calendar },
+      { name: 'Event Coordinators', href: '/admin/events/coordinators', icon: Users },
+      { name: 'Event Reports', href: '/admin/events/reports', icon: BarChart3 },
+    ]
+  }
+
+  if (userRole === 'WORKSHOPS_LEAD') {
+    return [
+      ...baseNavigation,
+      { name: 'Workshops', href: '/admin/workshops', icon: GraduationCap },
+      { name: 'Workshop Coordinators', href: '/admin/workshops/coordinators', icon: Users },
+      { name: 'Workshop Reports', href: '/admin/workshops/reports', icon: BarChart3 },
+    ]
+  }
+
+  if (userRole === 'EVENT_COORDINATOR') {
+    return [
+      ...baseNavigation,
+      { name: 'My Events', href: '/admin/events/my-events', icon: Calendar },
+      { name: 'Registrations', href: '/admin/events/registrations', icon: Users },
+    ]
+  }
+
+  if (userRole === 'WORKSHOP_COORDINATOR') {
+    return [
+      ...baseNavigation,
+      { name: 'My Workshops', href: '/admin/workshops/my-workshops', icon: GraduationCap },
+      { name: 'Registrations', href: '/admin/workshops/registrations', icon: Users },
+    ]
+  }
+
+  return baseNavigation
+}
 
 interface AdminSidebarProps {
   collapsed?: boolean
   onToggle?: () => void
+  userRole?: string
 }
 
-export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps) {
+export function AdminSidebar({ collapsed = false, onToggle, userRole = 'PARTICIPANT' }: AdminSidebarProps) {
   const location = useLocation()
+  const navigation = getNavigation(userRole)
 
   return (
     <div className={`bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${

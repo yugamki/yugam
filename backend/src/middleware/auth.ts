@@ -43,6 +43,11 @@ export const authorize = (...roles: UserRole[]) => {
       return res.status(401).json({ error: 'Access denied. Not authenticated.' })
     }
 
+    // Allow OVERALL_ADMIN to access everything
+    if (req.user.role === UserRole.OVERALL_ADMIN || roles.includes(req.user.role)) {
+      return next()
+    }
+
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ error: 'Access denied. Insufficient permissions.' })
     }

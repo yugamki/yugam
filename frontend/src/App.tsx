@@ -6,6 +6,9 @@ import { Footer } from '@/components/layout/footer'
 import { AdminLayout } from '@/components/admin/layout'
 import { HomePage } from '@/pages/home'
 import { AdminDashboard } from '@/pages/admin/dashboard'
+import { AdminUsers } from '@/pages/admin/users'
+import { EventsDashboard } from '@/pages/admin/events/dashboard'
+import { WorkshopsDashboard } from '@/pages/admin/workshops/dashboard'
 
 const queryClient = new QueryClient()
 
@@ -37,9 +40,9 @@ function App() {
             {/* Admin Routes */}
             <Route path="/admin/*" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="events" element={<div className="p-8 text-center">Admin Events - Coming Soon</div>} />
-              <Route path="workshops" element={<div className="p-8 text-center">Admin Workshops - Coming Soon</div>} />
-              <Route path="participants" element={<div className="p-8 text-center">Admin Participants - Coming Soon</div>} />
+              <Route path="events" element={<EventsDashboard />} />
+              <Route path="workshops" element={<WorkshopsDashboard />} />
+              <Route path="participants" element={<AdminUsers />} />
               <Route path="payments" element={<div className="p-8 text-center">Admin Payments - Coming Soon</div>} />
               <Route path="accommodations" element={<div className="p-8 text-center">Admin Accommodations - Coming Soon</div>} />
               <Route path="notifications" element={<div className="p-8 text-center">Admin Notifications - Coming Soon</div>} />
