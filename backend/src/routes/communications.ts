@@ -22,8 +22,7 @@ const transporter = nodemailer.createTransporter({
 router.post('/email', authenticate, authorize(
   UserRole.EVENTS_LEAD, 
   UserRole.WORKSHOPS_LEAD, 
-  UserRole.OVERALL_ADMIN, 
-  UserRole.SOFTWARE_ADMIN
+  UserRole.ADMIN
 ), [
   body('eventId').optional().isString(),
   body('subject').trim().isLength({ min: 1, max: 200 }),
@@ -149,8 +148,7 @@ router.post('/email', authenticate, authorize(
 router.get('/emails', authenticate, authorize(
   UserRole.EVENTS_LEAD, 
   UserRole.WORKSHOPS_LEAD, 
-  UserRole.OVERALL_ADMIN, 
-  UserRole.SOFTWARE_ADMIN
+  UserRole.ADMIN
 ), async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id
@@ -162,7 +160,7 @@ router.get('/emails', authenticate, authorize(
     let where: any = {}
     
     // Filter based on user role
-    if (![UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
+    if (userRole !== UserRole.ADMIN) {
       if (userRole === UserRole.EVENTS_LEAD) {
         where = {
           OR: [
@@ -215,8 +213,7 @@ router.get('/emails', authenticate, authorize(
 router.post('/whatsapp/request', authenticate, authorize(
   UserRole.EVENTS_LEAD, 
   UserRole.WORKSHOPS_LEAD, 
-  UserRole.OVERALL_ADMIN, 
-  UserRole.SOFTWARE_ADMIN
+  UserRole.ADMIN
 ), [
   body('eventId').optional().isString(),
   body('message').trim().isLength({ min: 1, max: 512 })
@@ -310,8 +307,7 @@ router.get('/whatsapp/requests', authenticate, authorize(
 
 // Approve/Reject WhatsApp request
 router.patch('/whatsapp/requests/:id', authenticate, authorize(
-  UserRole.OVERALL_ADMIN, 
-  UserRole.SOFTWARE_ADMIN
+  UserRole.ADMIN
 ), [
   body('status').isIn(['APPROVED', 'REJECTED'])
 ], async (req: AuthRequest, res) => {
@@ -347,8 +343,7 @@ router.patch('/whatsapp/requests/:id', authenticate, authorize(
 router.get('/user-events', authenticate, authorize(
   UserRole.EVENTS_LEAD, 
   UserRole.WORKSHOPS_LEAD, 
-  UserRole.OVERALL_ADMIN, 
-  UserRole.SOFTWARE_ADMIN
+  UserRole.ADMIN
 ), async (req: AuthRequest, res) => {
   try {
     const userRole = req.user!.role

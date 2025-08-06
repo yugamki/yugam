@@ -64,6 +64,22 @@ export function useAuthState() {
       setToken(data.token)
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
+      
+      // Redirect based on role
+      const role = data.user.role
+      if (role === 'ADMIN') {
+        window.location.href = '/admin'
+      } else if (role === 'EVENTS_LEAD') {
+        window.location.href = '/admin/events'
+      } else if (role === 'WORKSHOPS_LEAD') {
+        window.location.href = '/admin/workshops'
+      } else if (role === 'EVENT_COORDINATOR') {
+        window.location.href = '/admin/events/my-events'
+      } else if (role === 'WORKSHOP_COORDINATOR') {
+        window.location.href = '/admin/workshops/my-workshops'
+      } else {
+        window.location.href = '/dashboard'
+      }
     } catch (error) {
       console.error('Login error:', error)
       throw error

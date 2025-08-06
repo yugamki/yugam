@@ -24,7 +24,7 @@ const getNavigation = (userRole: string) => {
     { name: 'Dashboard', href: '/admin', icon: Home },
   ]
 
-  if (userRole === 'OVERALL_ADMIN' || userRole === 'SOFTWARE_ADMIN' || userRole === 'ADMIN') {
+  if (userRole === 'ADMIN') {
     return [
       ...baseNavigation,
       { name: 'Events', href: '/admin/events', icon: Calendar },

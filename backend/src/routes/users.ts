@@ -157,7 +157,7 @@ router.get('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWAR
 })
 
 // Create user (admin only)
-router.post('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), [
+router.post('/', authenticate, authorize(UserRole.ADMIN), [
   body('email').isEmail().normalizeEmail(),
   body('firstName').trim().isLength({ min: 1 }),
   body('lastName').trim().isLength({ min: 1 }),
@@ -232,7 +232,7 @@ router.post('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWA
 })
 
 // Update user role (admin only)
-router.patch('/:id/role', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), [
+router.patch('/:id/role', authenticate, authorize(UserRole.ADMIN), [
   body('role').isIn(Object.values(UserRole))
 ], async (req: AuthRequest, res) => {
   try {

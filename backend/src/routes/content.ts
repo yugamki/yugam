@@ -30,7 +30,7 @@ router.get('/:key', async (req, res) => {
 })
 
 // Get all content (admin only)
-router.get('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req, res) => {
+router.get('/', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
   try {
     const { page = 1, limit = 20, published } = req.query
     const skip = (Number(page) - 1) * Number(limit)
@@ -66,7 +66,7 @@ router.get('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWAR
 })
 
 // Create content (admin only)
-router.post('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), [
+router.post('/', authenticate, authorize(UserRole.ADMIN), [
   body('key').trim().isLength({ min: 1, max: 100 }),
   body('title').trim().isLength({ min: 1, max: 200 }),
   body('content').trim().isLength({ min: 1 }),
@@ -100,7 +100,7 @@ router.post('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWA
 })
 
 // Update content (admin only)
-router.put('/:id', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), [
+router.put('/:id', authenticate, authorize(UserRole.ADMIN), [
   body('title').optional().trim().isLength({ min: 1, max: 200 }),
   body('content').optional().trim().isLength({ min: 1 }),
   body('isPublished').optional().isBoolean()
@@ -129,7 +129,7 @@ router.put('/:id', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFT
 })
 
 // Delete content (admin only)
-router.delete('/:id', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req: AuthRequest, res) => {
+router.delete('/:id', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
 

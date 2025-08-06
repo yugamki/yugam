@@ -304,7 +304,7 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
 })
 
 // Get all payments (admin only)
-router.get('/admin', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req, res) => {
+router.get('/admin', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
   try {
     const { page = 1, limit = 20, status, eventType } = req.query
     const skip = (Number(page) - 1) * Number(limit)
@@ -362,7 +362,7 @@ router.get('/admin', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SO
 })
 
 // Process refund (admin only)
-router.post('/refund/:id', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), [
+router.post('/refund/:id', authenticate, authorize(UserRole.ADMIN), [
   body('refundAmount').isFloat({ min: 0 }),
   body('refundReason').trim().isLength({ min: 1 })
 ], async (req: AuthRequest, res) => {
@@ -416,7 +416,7 @@ router.post('/refund/:id', authenticate, authorize(UserRole.OVERALL_ADMIN, UserR
 })
 
 // Get payment statistics (admin only)
-router.get('/stats', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req, res) => {
+router.get('/stats', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
   try {
     const [
       totalRevenue,

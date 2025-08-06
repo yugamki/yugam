@@ -102,7 +102,7 @@ router.patch('/mark-all-read', authenticate, async (req: AuthRequest, res) => {
 })
 
 // Create notification (admin only)
-router.post('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), [
+router.post('/', authenticate, authorize(UserRole.ADMIN), [
   body('title').trim().isLength({ min: 1, max: 200 }),
   body('message').trim().isLength({ min: 1 }),
   body('type').trim().isLength({ min: 1 }),
@@ -173,7 +173,7 @@ router.post('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWA
 })
 
 // Get all notifications (admin only)
-router.get('/admin', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req, res) => {
+router.get('/admin', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query
     const skip = (Number(page) - 1) * Number(limit)

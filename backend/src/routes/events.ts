@@ -210,19 +210,19 @@ router.post('/', authenticate, [
 
     // Only ADMIN can create COMBO events
     if (eventData.eventType === 'COMBO' && 
-        ![UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
+        userRole !== UserRole.ADMIN) {
       return res.status(403).json({ error: 'Only admins can create combo events' })
     }
 
     // Only EVENT_TEAM_LEAD and above can create GENERAL/PAID events
     if (!eventData.isWorkshop && 
-        ![UserRole.EVENTS_LEAD, UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
+        ![UserRole.EVENTS_LEAD, UserRole.ADMIN].includes(userRole)) {
       return res.status(403).json({ error: 'Only events team lead and above can create events' })
     }
 
     // Only WORKSHOP_TEAM_LEAD and above can create workshops
     if (eventData.isWorkshop && 
-        ![UserRole.WORKSHOPS_LEAD, UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
+        ![UserRole.WORKSHOPS_LEAD, UserRole.ADMIN].includes(userRole)) {
       return res.status(403).json({ error: 'Only workshops team lead and above can create workshops' })
     }
 
@@ -277,7 +277,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 
     // Check permissions
     const canEdit = event.creatorId === userId || 
-                   [UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN, UserRole.EVENTS_LEAD].includes(userRole)
+                   [UserRole.ADMIN, UserRole.EVENTS_LEAD].includes(userRole)
 
     if (!canEdit) {
       return res.status(403).json({ error: 'Not authorized to edit this event' })
@@ -367,7 +367,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
 
     // Check permissions
     const canDelete = event.creatorId === userId || 
-                     [UserRole.ADMIN].includes(userRole)
+                     userRole === UserRole.ADMIN
 
     if (!canDelete) {
       return res.status(403).json({ error: 'Not authorized to delete this event' })

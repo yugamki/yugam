@@ -56,14 +56,12 @@ const userRoles = [
   { value: 'WORKSHOP_COORDINATOR', label: 'Workshop Coordinator' },
   { value: 'EVENTS_LEAD', label: 'Events Lead' },
   { value: 'WORKSHOPS_LEAD', label: 'Workshops Lead' },
-  { value: 'SOFTWARE_ADMIN', label: 'Software Admin' },
-  { value: 'OVERALL_ADMIN', label: 'Overall Admin' },
+  { value: 'ADMIN', label: 'Admin' },
 ]
 
 const getRoleBadgeVariant = (role: string) => {
   switch (role) {
-    case 'OVERALL_ADMIN':
-    case 'SOFTWARE_ADMIN':
+    case 'ADMIN':
       return 'destructive'
     case 'EVENTS_LEAD':
     case 'WORKSHOPS_LEAD':

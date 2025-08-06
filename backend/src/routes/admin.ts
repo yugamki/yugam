@@ -31,7 +31,7 @@ router.get('/dashboard/stats', authenticate, authorize(UserRole.OVERALL_ADMIN, U
 })
 
 // Recent activities
-router.get('/dashboard/activities', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req: AuthRequest, res) => {
+router.get('/dashboard/activities', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
   try {
     // Get recent registrations, payments, and events
     const [recentRegistrations, recentPayments, recentEvents] = await Promise.all([
@@ -93,7 +93,7 @@ router.get('/dashboard/activities', authenticate, authorize(UserRole.OVERALL_ADM
 })
 
 // Pending approvals
-router.get('/dashboard/pending-approvals', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req: AuthRequest, res) => {
+router.get('/dashboard/pending-approvals', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
   try {
     const pendingEvents = await prisma.event.findMany({
       where: { status: 'PENDING_APPROVAL' },
@@ -146,7 +146,7 @@ router.get('/events/stats', authenticate, authorize(UserRole.OVERALL_ADMIN, User
 })
 
 // Workshops stats
-router.get('/workshops/stats', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN, UserRole.WORKSHOPS_LEAD), async (req: AuthRequest, res) => {
+router.get('/workshops/stats', authenticate, authorize(UserRole.ADMIN, UserRole.WORKSHOPS_LEAD), async (req: AuthRequest, res) => {
   try {
     const [totalWorkshops, activeWorkshops, totalParticipants, pendingApprovals] = await Promise.all([
       prisma.event.count({ where: { isWorkshop: true } }),
@@ -172,7 +172,7 @@ router.get('/workshops/stats', authenticate, authorize(UserRole.OVERALL_ADMIN, U
 })
 
 // Get events for admin
-router.get('/events', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN, UserRole.EVENTS_LEAD), async (req: AuthRequest, res) => {
+router.get('/events', authenticate, authorize(UserRole.ADMIN, UserRole.EVENTS_LEAD), async (req: AuthRequest, res) => {
   try {
     const { limit = 10 } = req.query
 
@@ -205,7 +205,7 @@ router.get('/events', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.S
 })
 
 // Get workshops for admin
-router.get('/workshops', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN, UserRole.WORKSHOPS_LEAD), async (req: AuthRequest, res) => {
+router.get('/workshops', authenticate, authorize(UserRole.ADMIN, UserRole.WORKSHOPS_LEAD), async (req: AuthRequest, res) => {
   try {
     const { limit = 10 } = req.query
 
