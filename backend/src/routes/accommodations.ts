@@ -1,6 +1,6 @@
 import express from 'express'
 import { body, validationResult } from 'express-validator'
-import { PrismaClient, AccommodationType } from '@prisma/client'
+import { PrismaClient, UserRole } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
 
 const router = express.Router()
@@ -14,6 +14,7 @@ router.get('/my-accommodation', authenticate, async (req: AuthRequest, res) => {
     const accommodation = await prisma.accommodation.findUnique({
       where: { userId },
       include: {
+        roomType: true,
         user: {
           select: { firstName: true, lastName: true, email: true, phone: true }
         }
@@ -29,7 +30,7 @@ router.get('/my-accommodation', authenticate, async (req: AuthRequest, res) => {
 
 // Request accommodation
 router.post('/', authenticate, [
-  body('type').isIn(Object.values(AccommodationType)),
+  body('roomTypeId').isString(),
   body('checkInDate').isISO8601(),
   body('checkOutDate').isISO8601(),
   body('specialRequests').optional().trim()
@@ -40,8 +41,39 @@ router.post('/', authenticate, [
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { type, checkInDate, checkOutDate, specialRequests } = req.body
+    const { roomTypeId, checkInDate, checkOutDate, specialRequests } = req.body
     const userId = req.user!.id
+
+    // Get user details for gender validation
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { gender: true }
+    })
+
+    if (!user?.gender) {
+      return res.status(400).json({ error: 'Please update your gender in profile before booking accommodation' })
+    }
+
+    // Get room type details
+    const roomType = await prisma.roomType.findUnique({
+      where: { id: roomTypeId }
+    })
+
+    if (!roomType) {
+      return res.status(404).json({ error: 'Room type not found' })
+    }
+
+    if (!roomType.isActive) {
+      return res.status(400).json({ error: 'This room type is not available' })
+    }
+
+    if (roomType.gender !== user.gender) {
+      return res.status(400).json({ error: 'This room type is not available for your gender' })
+    }
+
+    if (roomType.availableRooms <= 0) {
+      return res.status(400).json({ error: 'No rooms available for this type' })
+    }
 
     // Check if user already has accommodation
     const existingAccommodation = await prisma.accommodation.findUnique({
@@ -62,35 +94,31 @@ router.post('/', authenticate, [
 
     // Calculate cost based on type and duration
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
-    let costPerNight = 0
-
-    switch (type) {
-      case 'SINGLE_ROOM':
-        costPerNight = 1500
-        break
-      case 'DOUBLE_ROOM':
-        costPerNight = 1000
-        break
-      case 'DORMITORY':
-        costPerNight = 500
-        break
-      case 'EXTERNAL':
-        costPerNight = 0
-        break
-    }
-
-    const totalCost = costPerNight * nights
+    const totalCost = roomType.pricePerNight * nights
 
     // Create accommodation request
     const accommodation = await prisma.accommodation.create({
       data: {
         userId,
-        type,
+        roomTypeId,
         checkInDate: checkIn,
         checkOutDate: checkOut,
         specialRequests,
         totalCost,
-        isConfirmed: type === 'EXTERNAL' // External accommodation is auto-confirmed
+        isConfirmed: false
+      },
+      include: {
+        roomType: true
+      }
+    })
+
+    // Decrease available rooms
+    await prisma.roomType.update({
+      where: { id: roomTypeId },
+      data: {
+        availableRooms: {
+          decrement: 1
+        }
       }
     })
 
@@ -106,7 +134,7 @@ router.post('/', authenticate, [
 
 // Update accommodation
 router.put('/:id', authenticate, [
-  body('type').optional().isIn(Object.values(AccommodationType)),
+  body('roomTypeId').optional().isString(),
   body('checkInDate').optional().isISO8601(),
   body('checkOutDate').optional().isISO8601(),
   body('specialRequests').optional().trim()
@@ -181,15 +209,15 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
 })
 
 // Get all accommodations (admin only)
-router.get('/admin', authenticate, authorize('OVERALL_ADMIN', 'SOFTWARE_ADMIN'), async (req, res) => {
+router.get('/admin', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
   try {
-    const { page = 1, limit = 20, type, status } = req.query
+    const { page = 1, limit = 20, roomTypeId, status } = req.query
     const skip = (Number(page) - 1) * Number(limit)
 
     const where: any = {}
     
-    if (type) {
-      where.type = type
+    if (roomTypeId) {
+      where.roomTypeId = roomTypeId
     }
 
     if (status === 'confirmed') {
@@ -202,6 +230,7 @@ router.get('/admin', authenticate, authorize('OVERALL_ADMIN', 'SOFTWARE_ADMIN'),
       prisma.accommodation.findMany({
         where,
         include: {
+          roomType: true,
           user: {
             select: {
               firstName: true,
@@ -235,7 +264,7 @@ router.get('/admin', authenticate, authorize('OVERALL_ADMIN', 'SOFTWARE_ADMIN'),
 })
 
 // Confirm accommodation (admin only)
-router.patch('/:id/confirm', authenticate, authorize('OVERALL_ADMIN', 'SOFTWARE_ADMIN'), [
+router.patch('/:id/confirm', authenticate, authorize(UserRole.ADMIN), [
   body('roomNumber').optional().trim(),
   body('roommates').optional().isArray()
 ], async (req: AuthRequest, res) => {
@@ -251,6 +280,7 @@ router.patch('/:id/confirm', authenticate, authorize('OVERALL_ADMIN', 'SOFTWARE_
         roommates: roommates || []
       },
       include: {
+        roomType: true,
         user: {
           select: { firstName: true, lastName: true, email: true }
         }
@@ -263,6 +293,89 @@ router.patch('/:id/confirm', authenticate, authorize('OVERALL_ADMIN', 'SOFTWARE_
     })
   } catch (error) {
     console.error('Confirm accommodation error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get room types (public)
+router.get('/room-types', async (req, res) => {
+  try {
+    const { gender } = req.query
+
+    const where: any = { isActive: true }
+    if (gender) {
+      where.gender = gender
+    }
+
+    const roomTypes = await prisma.roomType.findMany({
+      where,
+      orderBy: { pricePerNight: 'asc' }
+    })
+
+    res.json({ roomTypes })
+  } catch (error) {
+    console.error('Get room types error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Create room type (admin only)
+router.post('/room-types', authenticate, authorize(UserRole.ADMIN), [
+  body('name').trim().isLength({ min: 1 }),
+  body('description').optional().trim(),
+  body('capacity').isInt({ min: 1 }),
+  body('pricePerNight').isFloat({ min: 0 }),
+  body('amenities').optional().isArray(),
+  body('gender').isIn(['MALE', 'FEMALE', 'OTHER']),
+  body('totalRooms').isInt({ min: 1 })
+], async (req: AuthRequest, res) => {
+  try {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+
+    const { name, description, capacity, pricePerNight, amenities, gender, totalRooms } = req.body
+
+    const roomType = await prisma.roomType.create({
+      data: {
+        name,
+        description,
+        capacity,
+        pricePerNight,
+        amenities: amenities || [],
+        gender,
+        totalRooms,
+        availableRooms: totalRooms
+      }
+    })
+
+    res.status(201).json({
+      message: 'Room type created successfully',
+      roomType
+    })
+  } catch (error) {
+    console.error('Create room type error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Update room type (admin only)
+router.put('/room-types/:id', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params
+
+    const roomType = await prisma.roomType.update({
+      where: { id },
+      data: req.body
+    })
+
+    res.json({
+      message: 'Room type updated successfully',
+      roomType
+    })
+  } catch (error) {
+    console.error('Update room type error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })

@@ -1,164 +1,161 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Calendar, Users, Trophy, Sparkles, Clock, MapPin } from 'lucide-react'
+import { ArrowRight, Calendar, Users, Trophy, Sparkles, Clock, MapPin, Star, Zap, Award, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 const features = [
   {
-    name: 'Technical Events',
-    description: 'Coding competitions, hackathons, robotics, and tech talks by industry experts.',
-    icon: Trophy,
+    name: 'Technical Excellence',
+    description: 'Cutting-edge competitions, hackathons, robotics challenges, and tech talks by industry leaders.',
+    icon: Zap,
     color: 'text-blue-500',
+    gradient: 'from-blue-500 to-cyan-500'
   },
   {
-    name: 'Cultural Programs',
-    description: 'Dance, music, drama, fashion shows, and art exhibitions showcasing talent.',
+    name: 'Cultural Extravaganza',
+    description: 'Spectacular performances, dance battles, music concerts, drama, and art exhibitions.',
     icon: Sparkles,
     color: 'text-purple-500',
+    gradient: 'from-purple-500 to-pink-500'
   },
   {
-    name: 'Workshops',
-    description: 'Hands-on learning sessions on latest technologies and skill development.',
+    name: 'Skill Workshops',
+    description: 'Hands-on learning with industry experts on latest technologies and professional skills.',
     icon: Users,
     color: 'text-green-500',
+    gradient: 'from-green-500 to-emerald-500'
   },
   {
-    name: 'Sports Events',
-    description: 'Cricket, football, basketball, and various indoor and outdoor sports.',
-    icon: Calendar,
+    name: 'Sports Arena',
+    description: 'Thrilling tournaments across cricket, football, basketball, and various indoor sports.',
+    icon: Trophy,
     color: 'text-orange-500',
+    gradient: 'from-orange-500 to-red-500'
   },
 ]
 
 const stats = [
-  { name: 'Expected Participants', value: '10,000+' },
-  { name: 'Events & Workshops', value: '200+' },
-  { name: 'Days of Celebration', value: '3' },
-  { name: 'Prize Money', value: '₹5L+' },
+  { name: 'Expected Participants', value: '25,000+', icon: Users },
+  { name: 'Events & Workshops', value: '200+', icon: Calendar },
+  { name: 'Days of Celebration', value: '3', icon: Clock },
+  { name: 'Prize Pool', value: '₹10L+', icon: Award },
 ]
 
-const upcomingEvents = [
+const highlights = [
   {
-    id: 1,
-    title: 'Web Development Workshop',
-    category: 'Technical',
-    date: '2025-02-15',
-    time: '10:00 AM',
-    location: 'Computer Lab A',
-    price: 500,
-    registrations: 45,
-    maxRegistrations: 50,
+    title: 'Celebrity Performances',
+    description: 'Renowned artists and performers will grace the stage',
+    icon: Star,
+    color: 'text-yellow-500'
   },
   {
-    id: 2,
-    title: 'Cultural Night',
-    category: 'Cultural',
-    date: '2025-02-16',
-    time: '6:00 PM',
-    location: 'Main Auditorium',
-    price: 0,
-    registrations: 234,
-    maxRegistrations: 500,
+    title: 'Industry Partnerships',
+    description: 'Leading tech companies and startups as partners',
+    icon: Globe,
+    color: 'text-blue-500'
   },
   {
-    id: 3,
-    title: 'Robotics Competition',
-    category: 'Technical',
-    date: '2025-02-17',
-    time: '9:00 AM',
-    location: 'Engineering Block',
-    price: 1000,
-    registrations: 28,
-    maxRegistrations: 30,
-  },
+    title: 'Innovation Hub',
+    description: 'Showcase your projects and connect with investors',
+    icon: Zap,
+    color: 'text-purple-500'
+  }
 ]
 
 export function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-yugam-50 via-white to-yugam-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-24 sm:py-32">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f59532" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-yugam-50 via-white to-yugam-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-32 sm:py-40">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f59532" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40" />
+        
+        {/* Floating Elements */}
+        <div className="absolute top-20 left-10 w-20 h-20 bg-yugam-200 rounded-full opacity-20 animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }} />
+        <div className="absolute top-40 right-20 w-16 h-16 bg-yugam-300 rounded-full opacity-30 animate-bounce" style={{ animationDelay: '1s', animationDuration: '4s' }} />
+        <div className="absolute bottom-40 left-20 w-12 h-12 bg-yugam-400 rounded-full opacity-25 animate-bounce" style={{ animationDelay: '2s', animationDuration: '5s' }} />
         
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <Badge variant="yugam" className="mb-6 animate-fade-in">
-              Registration Now Open
+          <div className="mx-auto max-w-4xl text-center">
+            <Badge variant="yugam" className="mb-8 animate-fade-in text-lg px-6 py-2">
+              🎉 Registration Now Open - Early Bird Offers Available!
             </Badge>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl animate-fade-in">
+            
+            <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-7xl lg:text-8xl animate-fade-in">
               Welcome to{' '}
-              <span className="yugam-gradient-text">Yugam 2025</span>
+              <span className="yugam-gradient-text block mt-2">Yugam 2025</span>
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground animate-fade-in">
-              The ultimate college festival experience. Join thousands of students for three days of 
-              technical competitions, cultural programs, workshops, and unforgettable memories.
+            
+            <p className="mt-8 text-xl leading-8 text-muted-foreground animate-fade-in max-w-3xl mx-auto">
+              India's most spectacular college festival returns! Join 25,000+ students for three unforgettable days of 
+              innovation, culture, competition, and celebration. Where dreams meet reality and legends are born.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6 animate-fade-in">
-              <Button size="lg" variant="yugam" asChild>
+            
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in">
+              <Button size="lg" variant="yugam" className="text-lg px-8 py-4 h-auto shadow-2xl hover:shadow-yugam-500/25 transition-all duration-300" asChild>
                 <Link to="/events">
+                  <Trophy className="mr-2 h-5 w-5" />
                   Explore Events
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/workshops">View Workshops</Link>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto border-2 hover:bg-yugam-50 dark:hover:bg-yugam-950" asChild>
+                <Link to="/workshops">
+                  <Users className="mr-2 h-5 w-5" />
+                  View Workshops
+                </Link>
               </Button>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:max-w-none">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Yugam 2025 by the Numbers
-              </h2>
-              <p className="mt-4 text-lg leading-8 text-muted-foreground">
-                Join the biggest college festival in the region
-              </p>
+            {/* Quick Stats */}
+            <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8 animate-fade-in">
+              {stats.map((stat) => {
+                const Icon = stat.icon
+                return (
+                  <div key={stat.name} className="text-center">
+                    <div className="flex justify-center mb-2">
+                      <Icon className="h-8 w-8 text-yugam-500" />
+                    </div>
+                    <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground">{stat.name}</div>
+                  </div>
+                )
+              })}
             </div>
-            <dl className="mt-16 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.name} className="flex flex-col bg-muted/50 p-8">
-                  <dt className="text-sm font-semibold leading-6 text-muted-foreground">{stat.name}</dt>
-                  <dd className="order-first text-3xl font-bold tracking-tight text-foreground">
-                    {stat.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 sm:py-20 bg-muted/30">
+      <section className="py-24 sm:py-32 bg-gradient-to-b from-white to-yugam-50 dark:from-gray-900 dark:to-gray-800">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              What Makes Yugam Special
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              What Makes Yugam Extraordinary
             </h2>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Experience the perfect blend of technology, culture, sports, and learning
+            <p className="mt-6 text-xl leading-8 text-muted-foreground">
+              Experience the perfect fusion of technology, culture, sports, and innovation at India's premier college festival
             </p>
           </div>
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2 xl:grid-cols-4">
+          
+          <div className="mx-auto mt-20 max-w-2xl sm:mt-24 lg:mt-32 lg:max-w-none">
+            <dl className="grid max-w-xl grid-cols-1 gap-12 lg:max-w-none lg:grid-cols-2 xl:grid-cols-4">
               {features.map((feature) => {
                 const Icon = feature.icon
                 return (
-                  <div key={feature.name} className="flex flex-col card-hover">
-                    <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-foreground">
-                      <Icon className={`h-5 w-5 flex-none ${feature.color}`} aria-hidden="true" />
-                      {feature.name}
-                    </dt>
-                    <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
-                      <p className="flex-auto">{feature.description}</p>
-                    </dd>
+                  <div key={feature.name} className="group relative">
+                    <div className="card-hover bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 h-full">
+                      <dt className="flex items-center gap-x-3 text-xl font-semibold leading-7 text-foreground mb-4">
+                        <div className={`p-3 rounded-xl bg-gradient-to-r ${feature.gradient} shadow-lg`}>
+                          <Icon className="h-6 w-6 text-white" aria-hidden="true" />
+                        </div>
+                        {feature.name}
+                      </dt>
+                      <dd className="text-base leading-7 text-muted-foreground">
+                        {feature.description}
+                      </dd>
+                    </div>
                   </div>
                 )
               })}
@@ -167,89 +164,78 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Upcoming Events Section */}
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Upcoming Events
+      {/* Highlights Section */}
+      <section className="py-24 sm:py-32 bg-gradient-to-r from-yugam-600 to-yugam-700 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              Festival Highlights
             </h2>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Don't miss out on these exciting events and workshops
+            <p className="mt-6 text-xl leading-8 text-yugam-100">
+              Exclusive experiences that make Yugam 2025 unforgettable
             </p>
           </div>
+          
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-            {upcomingEvents.map((event) => (
-              <Card key={event.id} className="card-hover">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Badge variant={event.category === 'Technical' ? 'default' : 'secondary'}>
-                      {event.category}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {event.registrations}/{event.maxRegistrations} registered
-                    </span>
+            {highlights.map((highlight) => {
+              const Icon = highlight.icon
+              return (
+                <div key={highlight.title} className="glass-effect rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300">
+                  <div className="flex justify-center mb-4">
+                    <Icon className={`h-12 w-12 ${highlight.color}`} />
                   </div>
-                  <CardTitle className="text-xl">{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    {new Date(event.date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    {event.time}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    {event.location}
-                  </div>
-                  <div className="flex items-center justify-between pt-4">
-                    <span className="text-lg font-semibold text-foreground">
-                      {event.price === 0 ? 'Free' : `₹${event.price}`}
-                    </span>
-                    <Button variant="yugam" size="sm" asChild>
-                      <Link to={`/events/${event.id}`}>Register Now</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <div className="mt-12 text-center">
-            <Button variant="outline" size="lg" asChild>
-              <Link to="/events">
-                View All Events
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+                  <h3 className="text-xl font-semibold text-white mb-3">{highlight.title}</h3>
+                  <p className="text-yugam-100">{highlight.description}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative isolate overflow-hidden bg-yugam-600 px-6 py-24 sm:py-32 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.yugam.100),white)] opacity-20" />
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Ready to Join Yugam 2025?
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-yugam-100">
-            Register now and be part of the most exciting college festival. Early bird discounts available!
-          </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button size="lg" variant="secondary" asChild>
-              <Link to="/auth/register">Create Account</Link>
-            </Button>
-            <Button size="lg" variant="ghost" className="text-white hover:bg-white/10" asChild>
-              <Link to="/contact">Contact Us</Link>
-            </Button>
+      {/* Registration CTA Section */}
+      <section className="py-24 sm:py-32 bg-gradient-to-b from-yugam-50 to-white dark:from-gray-800 dark:to-gray-900">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              Ready to Make History?
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-xl leading-8 text-muted-foreground">
+              Join 25,000+ participants in India's most spectacular college festival. 
+              Register now and be part of something extraordinary!
+            </p>
+            
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
+              <Button size="lg" variant="yugam" className="text-lg px-10 py-4 h-auto shadow-2xl" asChild>
+                <Link to="/auth/register">
+                  <Star className="mr-2 h-5 w-5" />
+                  Register Now
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-10 py-4 h-auto border-2" asChild>
+                <Link to="/contact">
+                  <Globe className="mr-2 h-5 w-5" />
+                  Contact Us
+                </Link>
+              </Button>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+              <div className="p-6 rounded-xl bg-white dark:bg-gray-800 shadow-lg">
+                <div className="text-2xl font-bold text-yugam-600">₹10L+</div>
+                <div className="text-sm text-muted-foreground">Total Prize Money</div>
+              </div>
+              <div className="p-6 rounded-xl bg-white dark:bg-gray-800 shadow-lg">
+                <div className="text-2xl font-bold text-yugam-600">50+</div>
+                <div className="text-sm text-muted-foreground">Industry Partners</div>
+              </div>
+              <div className="p-6 rounded-xl bg-white dark:bg-gray-800 shadow-lg">
+                <div className="text-2xl font-bold text-yugam-600">100%</div>
+                <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

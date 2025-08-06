@@ -14,15 +14,14 @@ enum UserRole {
   PARTICIPANT
   EVENT_COORDINATOR
   WORKSHOP_COORDINATOR
-  EVENTS_LEAD
-  WORKSHOPS_LEAD
-  SOFTWARE_ADMIN
-  OVERALL_ADMIN
+  EVENT_TEAM_LEAD
+  WORKSHOP_TEAM_LEAD
+  ADMIN
 }
 
 enum EventType {
   GENERAL
-  PAID
+  SPECIFIC
   COMBO
 }
 
@@ -61,6 +60,12 @@ enum AccommodationType {
   EXTERNAL
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
 model User {
   id                String    @id @default(cuid())
   email             String    @unique
@@ -71,9 +76,12 @@ model User {
   college           String?
   year              String?
   department        String?
+  gender            Gender?
   role              UserRole  @default(PARTICIPANT)
   isEmailVerified   Boolean   @default(false)
   profileImage      String?
+  yugamId           String?   @unique // YUG26-XXXXX format
+  qrCode            String?   // QR code for participant
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -233,6 +241,9 @@ model Payment {
   razorpayOrderId String?
   razorpayPaymentId String?
   failureReason   String?
+  refundAmount    Float?
+  refundReason    String?
+  refundedAt      DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -278,10 +289,30 @@ model UserNotification {
   @@map("user_notifications")
 }
 
+model RoomType {
+  id              String            @id @default(cuid())
+  name            String            @unique
+  description     String?
+  capacity        Int
+  pricePerNight   Float
+  amenities       String[]
+  isActive        Boolean           @default(true)
+  gender          Gender            // MALE, FEMALE, OTHER
+  totalRooms      Int
+  availableRooms  Int
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  accommodations  Accommodation[]
+
+  @@map("room_types")
+}
+
 model Accommodation {
   id              String            @id @default(cuid())
   userId          String            @unique
-  type            AccommodationType
+  roomTypeId      String
   checkInDate     DateTime
   checkOutDate    DateTime
   roomNumber      String?
@@ -294,6 +325,7 @@ model Accommodation {
 
   // Relations
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomType        RoomType          @relation(fields: [roomTypeId], references: [id])
 
   @@map("accommodations")
 }
@@ -308,4 +340,20 @@ model Content {
   updatedAt   DateTime  @updatedAt
 
   @@map("content")
+}
+
+model GeneralEventPass {
+  id          String    @id @default(cuid())
+  userId      String
+  isActive    Boolean   @default(true)
+  purchasedAt DateTime  @default(now())
+  expiresAt   DateTime?
+  amount      Float
+  paymentId   String?
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@map("general_event_passes")
 }

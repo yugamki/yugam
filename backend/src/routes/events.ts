@@ -1,6 +1,6 @@
 import express from 'express'
 import { body, query, validationResult } from 'express-validator'
-import { PrismaClient, UserRole, EventStatus } from '@prisma/client'
+import { PrismaClient, UserRole, EventStatus, EventType } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
 
 const router = express.Router()
@@ -187,7 +187,7 @@ router.post('/', authenticate, [
   body('startDate').isISO8601(),
   body('endDate').isISO8601(),
   body('duration').isInt({ min: 1, max: 3 }),
-  body('eventType').isIn(['GENERAL', 'PAID', 'COMBO']),
+  body('eventType').isIn(['GENERAL', 'SPECIFIC', 'COMBO']),
   body('mode').isIn(['INDIVIDUAL', 'TEAM']),
   body('expectedParticipants').isInt({ min: 1 }),
   body('isWorkshop').optional().isBoolean(),
@@ -206,6 +206,12 @@ router.post('/', authenticate, [
 
     const eventData = req.body
     const userId = req.user!.id
+    const userRole = req.user!.role
+
+    // Only ADMIN can create COMBO events
+    if (eventData.eventType === 'COMBO' && userRole !== UserRole.ADMIN) {
+      return res.status(403).json({ error: 'Only admins can create combo events' })
+    }
 
     // Validate dates
     const startDate = new Date(eventData.startDate)
@@ -290,7 +296,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 })
 
 // Approve/Reject event (admin only)
-router.patch('/:id/status', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.EVENTS_LEAD), [
+router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN, UserRole.EVENT_TEAM_LEAD), [
   body('status').isIn(['APPROVED', 'PUBLISHED', 'CANCELLED']),
   body('managerId').optional().isString()
 ], async (req: AuthRequest, res) => {
@@ -348,7 +354,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
 
     // Check permissions
     const canDelete = event.creatorId === userId || 
-                     [UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)
+                     [UserRole.ADMIN].includes(userRole)
 
     if (!canDelete) {
       return res.status(403).json({ error: 'Not authorized to delete this event' })

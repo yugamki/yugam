@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient } from '@prisma/client'
 import { authenticate, AuthRequest } from '../middleware/auth'
+import { generateYugamId, generateQRCode } from '../utils/yugamId'
 
 const router = express.Router()
 const prisma = new PrismaClient()
@@ -40,6 +41,10 @@ router.post('/register', [
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
+    // Generate Yugam ID and QR Code
+    const yugamId = await generateYugamId()
+    const qrCode = generateQRCode(yugamId)
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -50,7 +55,9 @@ router.post('/register', [
         phone,
         college,
         year,
-        department
+        department,
+        yugamId,
+        qrCode
       },
       select: {
         id: true,
@@ -58,6 +65,7 @@ router.post('/register', [
         firstName: true,
         lastName: true,
         role: true,
+        yugamId: true,
         createdAt: true
       }
     })
