@@ -7,10 +7,14 @@ import { AdminLayout } from '@/components/admin/layout'
 import { HomePage } from '@/pages/home'
 import { AdminDashboard } from '@/pages/admin/dashboard'
 import { AdminUsers } from '@/pages/admin/users'
+import { UserPermissions } from '@/pages/admin/users/permissions'
 import { EventsDashboard } from '@/pages/admin/events/dashboard'
 import { WorkshopsDashboard } from '@/pages/admin/workshops/dashboard'
 import { ManageEvents } from '@/pages/admin/events/manage'
+import { CreateEvent } from '@/pages/admin/events/create'
 import { PaymentsManagement } from '@/pages/admin/payments'
+import { AccommodationsManagement } from '@/pages/admin/accommodations'
+import { RegistrationsManagement } from '@/pages/admin/registrations'
 import { CommunicationsManagement } from '@/pages/admin/communications'
 
 const queryClient = new QueryClient()
@@ -45,11 +49,14 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="events" element={<EventsDashboard />} />
               <Route path="events/manage" element={<ManageEvents />} />
+              <Route path="events/create" element={<CreateEvent />} />
               <Route path="workshops" element={<WorkshopsDashboard />} />
-              <Route path="participants" element={<AdminUsers />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="users/permissions" element={<UserPermissions />} />
               <Route path="payments" element={<PaymentsManagement />} />
+              <Route path="accommodations" element={<AccommodationsManagement />} />
+              <Route path="registrations" element={<RegistrationsManagement />} />
               <Route path="communications" element={<CommunicationsManagement />} />
-              <Route path="accommodations" element={<div className="p-8 text-center">Admin Accommodations - Coming Soon</div>} />
               <Route path="notifications" element={<div className="p-8 text-center">Admin Notifications - Coming Soon</div>} />
               <Route path="reports" element={<div className="p-8 text-center">Admin Reports - Coming Soon</div>} />
               <Route path="content" element={<div className="p-8 text-center">Admin Content - Coming Soon</div>} />
