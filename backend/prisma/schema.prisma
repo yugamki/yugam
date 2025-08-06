@@ -94,6 +94,7 @@ model User {
   payments          Payment[]
   notifications     UserNotification[]
   accommodation     Accommodation?
+  generalEventPass  GeneralEventPass?
 
   @@map("users")
 }
