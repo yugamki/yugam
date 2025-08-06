@@ -187,7 +187,7 @@ router.post('/', authenticate, [
   body('startDate').isISO8601(),
   body('endDate').isISO8601(),
   body('duration').isInt({ min: 1, max: 3 }),
-  body('eventType').isIn(['GENERAL', 'SPECIFIC', 'COMBO']),
+  body('eventType').isIn(['GENERAL', 'PAID', 'COMBO']),
   body('mode').isIn(['INDIVIDUAL', 'TEAM']),
   body('expectedParticipants').isInt({ min: 1 }),
   body('isWorkshop').optional().isBoolean(),
@@ -209,8 +209,21 @@ router.post('/', authenticate, [
     const userRole = req.user!.role
 
     // Only ADMIN can create COMBO events
-    if (eventData.eventType === 'COMBO' && userRole !== UserRole.ADMIN) {
+    if (eventData.eventType === 'COMBO' && 
+        ![UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
       return res.status(403).json({ error: 'Only admins can create combo events' })
+    }
+
+    // Only EVENT_TEAM_LEAD and above can create GENERAL/PAID events
+    if (!eventData.isWorkshop && 
+        ![UserRole.EVENTS_LEAD, UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
+      return res.status(403).json({ error: 'Only events team lead and above can create events' })
+    }
+
+    // Only WORKSHOP_TEAM_LEAD and above can create workshops
+    if (eventData.isWorkshop && 
+        ![UserRole.WORKSHOPS_LEAD, UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
+      return res.status(403).json({ error: 'Only workshops team lead and above can create workshops' })
     }
 
     // Validate dates

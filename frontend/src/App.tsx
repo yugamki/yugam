@@ -9,6 +9,9 @@ import { AdminDashboard } from '@/pages/admin/dashboard'
 import { AdminUsers } from '@/pages/admin/users'
 import { EventsDashboard } from '@/pages/admin/events/dashboard'
 import { WorkshopsDashboard } from '@/pages/admin/workshops/dashboard'
+import { ManageEvents } from '@/pages/admin/events/manage'
+import { PaymentsManagement } from '@/pages/admin/payments'
+import { CommunicationsManagement } from '@/pages/admin/communications'
 
 const queryClient = new QueryClient()
 
@@ -41,9 +44,11 @@ function App() {
             <Route path="/admin/*" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="events" element={<EventsDashboard />} />
+              <Route path="events/manage" element={<ManageEvents />} />
               <Route path="workshops" element={<WorkshopsDashboard />} />
               <Route path="participants" element={<AdminUsers />} />
-              <Route path="payments" element={<div className="p-8 text-center">Admin Payments - Coming Soon</div>} />
+              <Route path="payments" element={<PaymentsManagement />} />
+              <Route path="communications" element={<CommunicationsManagement />} />
               <Route path="accommodations" element={<div className="p-8 text-center">Admin Accommodations - Coming Soon</div>} />
               <Route path="notifications" element={<div className="p-8 text-center">Admin Notifications - Coming Soon</div>} />
               <Route path="reports" element={<div className="p-8 text-center">Admin Reports - Coming Soon</div>} />

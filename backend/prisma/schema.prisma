@@ -23,7 +23,7 @@ enum UserRole {
 
 enum EventType {
   GENERAL
-  SPECIFIC
+  PAID
   COMBO
 }
 
@@ -53,6 +53,7 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+  PARTIAL_REFUND
 }
 
 enum AccommodationType {
@@ -97,6 +98,9 @@ model User {
   notifications     UserNotification[]
   accommodation     Accommodation?
   generalEventPass  GeneralEventPass?
+  sentEmails        EmailCommunication[] @relation("SentEmails")
+  whatsappRequests  WhatsAppRequest[] @relation("WhatsAppRequests")
+  approvedWhatsApp  WhatsAppRequest[] @relation("ApprovedWhatsApp")
 
   @@map("users")
 }
@@ -139,6 +143,8 @@ model Event {
   teams                 Team[]
   forms                 EventForm[]
   payments              Payment[]
+  emailCommunications   EmailCommunication[]
+  whatsappRequests      WhatsAppRequest[]
 
   @@map("events")
 }
@@ -348,10 +354,11 @@ model Content {
 model GeneralEventPass {
   id          String    @id @default(cuid())
   userId      String
+  days        Int       // 1, 2, or 3 days
+  amount      Float
   isActive    Boolean   @default(true)
   purchasedAt DateTime  @default(now())
   expiresAt   DateTime?
-  amount      Float
   paymentId   String?
 
   // Relations
@@ -359,4 +366,42 @@ model GeneralEventPass {
 
   @@unique([userId])
   @@map("general_event_passes")
+}
+
+model EmailCommunication {
+  id          String    @id @default(cuid())
+  eventId     String?
+  senderId    String
+  subject     String
+  content     String
+  replyTo     String
+  recipientCount Int    @default(0)
+  sentAt      DateTime  @default(now())
+  status      String    @default("SENT") // SENT, FAILED
+
+  // Relations
+  event       Event?    @relation(fields: [eventId], references: [id])
+  sender      User      @relation("SentEmails", fields: [senderId], references: [id])
+
+  @@map("email_communications")
+}
+
+model WhatsAppRequest {
+  id          String    @id @default(cuid())
+  eventId     String?
+  senderId    String
+  message     String
+  status      String    @default("PENDING") // PENDING, APPROVED, REJECTED, SENT
+  requestedAt DateTime  @default(now())
+  approvedAt  DateTime?
+  approvedBy  String?
+  sentAt      DateTime?
+  recipientCount Int?
+
+  // Relations
+  event       Event?    @relation(fields: [eventId], references: [id])
+  sender      User      @relation("WhatsAppRequests", fields: [senderId], references: [id])
+  approver    User?     @relation("ApprovedWhatsApp", fields: [approvedBy], references: [id])
+
+  @@map("whatsapp_requests")
 }
