@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient, RegistrationStatus } from '@prisma/client'
 import { authenticate, AuthRequest } from '../middleware/auth'
@@ -10,7 +10,7 @@ const prisma = new PrismaClient()
 router.post('/', authenticate, [
   body('eventId').isString(),
   body('teamId').optional().isString()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

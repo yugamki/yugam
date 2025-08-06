@@ -6,7 +6,7 @@ const router = express.Router()
 const prisma = new PrismaClient()
 
 // Dashboard stats
-router.get('/dashboard/stats', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN), async (req: AuthRequest, res) => {
+router.get('/dashboard/stats', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
   try {
     const [totalParticipants, activeEvents, totalRevenue, workshops] = await Promise.all([
       prisma.user.count({ where: { role: UserRole.PARTICIPANT } }),
@@ -120,7 +120,7 @@ router.get('/dashboard/pending-approvals', authenticate, authorize(UserRole.ADMI
 })
 
 // Events stats
-router.get('/events/stats', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN, UserRole.EVENTS_LEAD), async (req: AuthRequest, res) => {
+router.get('/events/stats', authenticate, authorize(UserRole.ADMIN, UserRole.EVENTS_LEAD), async (req: AuthRequest, res) => {
   try {
     const [totalEvents, activeEvents, totalRegistrations, pendingApprovals] = await Promise.all([
       prisma.event.count({ where: { isWorkshop: false } }),

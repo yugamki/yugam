@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient, UserRole } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
@@ -109,7 +109,7 @@ router.post('/', authenticate, authorize(UserRole.ADMIN), [
   body('targetRole').optional().isIn(Object.values(UserRole)),
   body('targetCategory').optional().trim(),
   body('targetEventId').optional().isString()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

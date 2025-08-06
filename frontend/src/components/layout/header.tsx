@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Calendar, Users, Settings, Bell } from 'lucide-react'
+import { Menu, X, Calendar, Users, Settings, Bell, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Badge } from '@/components/ui/badge'
+import { useAuth } from '@/components/auth-provider'
 
 const navigation = [
   { name: 'Events', href: '/events', icon: Calendar },
@@ -14,6 +15,12 @@ const navigation = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
+  const { user, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    window.location.href = '/'
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -57,16 +64,30 @@ export function Header() {
         </div>
         
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-4 w-4" />
-            <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
-              3
-            </Badge>
-          </Button>
-          <ThemeToggle />
-          <Button variant="yugam" asChild>
-            <Link to="/auth/login">Sign In</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-4 w-4" />
+                <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
+                  3
+                </Badge>
+              </Button>
+              <ThemeToggle />
+              <Button variant="outline" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <ThemeToggle />
+              <Button variant="yugam" asChild>
+                <Link to="/auth/login">Sign In</Link>
+              </Button>
+            </>
+          )}
         </div>
       </nav>
       
@@ -111,11 +132,28 @@ export function Header() {
                   })}
                 </div>
                 <div className="py-6">
-                  <Button variant="yugam" className="w-full" asChild>
-                    <Link to="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                      Sign In
-                    </Link>
-                  </Button>
+                  {user ? (
+                    <div className="space-y-3">
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                          Dashboard
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" className="w-full" onClick={() => {
+                        handleLogout()
+                        setMobileMenuOpen(false)
+                      }}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button variant="yugam" className="w-full" asChild>
+                      <Link to="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                        Sign In
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

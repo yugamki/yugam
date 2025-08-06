@@ -1,7 +1,8 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient, UserRole } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
+import bcrypt from 'bcryptjs'
 
 const router = express.Router()
 const prisma = new PrismaClient()
@@ -48,7 +49,7 @@ router.put('/profile', authenticate, [
   body('college').optional().trim(),
   body('year').optional().trim(),
   body('department').optional().trim()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -92,7 +93,7 @@ router.put('/profile', authenticate, [
 })
 
 // Get all users (admin only)
-router.get('/', authenticate, authorize(UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN, UserRole.ADMIN), async (req, res) => {
+router.get('/', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res: Response) => {
   try {
     const { page = 1, limit = 10, role, search } = req.query
 
@@ -166,7 +167,7 @@ router.post('/', authenticate, authorize(UserRole.ADMIN), [
   body('college').optional().trim(),
   body('year').optional().trim(),
   body('department').optional().trim()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -234,7 +235,7 @@ router.post('/', authenticate, authorize(UserRole.ADMIN), [
 // Update user role (admin only)
 router.patch('/:id/role', authenticate, authorize(UserRole.ADMIN), [
   body('role').isIn(Object.values(UserRole))
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

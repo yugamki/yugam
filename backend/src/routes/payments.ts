@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient, PaymentStatus, UserRole } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
@@ -9,7 +9,7 @@ const prisma = new PrismaClient()
 // Create general event pass payment
 router.post('/general-pass', authenticate, [
   body('days').isInt({ min: 1, max: 3 })
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -68,7 +68,7 @@ router.post('/general-pass', authenticate, [
 // Create payment order
 router.post('/create-order', authenticate, [
   body('registrationId').isString()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -184,7 +184,7 @@ router.post('/verify', authenticate, [
   body('paymentId').isString(),
   body('razorpayPaymentId').isString(),
   body('razorpaySignature').optional().isString()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -365,7 +365,7 @@ router.get('/admin', authenticate, authorize(UserRole.ADMIN), async (req, res) =
 router.post('/refund/:id', authenticate, authorize(UserRole.ADMIN), [
   body('refundAmount').isFloat({ min: 0 }),
   body('refundReason').trim().isLength({ min: 1 })
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient, UserRole } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
@@ -34,7 +34,7 @@ router.post('/', authenticate, [
   body('checkInDate').isISO8601(),
   body('checkOutDate').isISO8601(),
   body('specialRequests').optional().trim()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -138,7 +138,7 @@ router.put('/:id', authenticate, [
   body('checkInDate').optional().isISO8601(),
   body('checkOutDate').optional().isISO8601(),
   body('specialRequests').optional().trim()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -267,7 +267,7 @@ router.get('/admin', authenticate, authorize(UserRole.ADMIN), async (req, res) =
 router.patch('/:id/confirm', authenticate, authorize(UserRole.ADMIN), [
   body('roomNumber').optional().trim(),
   body('roommates').optional().isArray()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const { roomNumber, roommates } = req.body
@@ -328,7 +328,7 @@ router.post('/room-types', authenticate, authorize(UserRole.ADMIN), [
   body('amenities').optional().isArray(),
   body('gender').isIn(['MALE', 'FEMALE', 'OTHER']),
   body('totalRooms').isInt({ min: 1 })
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

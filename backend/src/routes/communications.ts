@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient, UserRole } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
@@ -8,7 +8,7 @@ const router = express.Router()
 const prisma = new PrismaClient()
 
 // Configure email transporter
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false,
@@ -28,7 +28,7 @@ router.post('/email', authenticate, authorize(
   body('subject').trim().isLength({ min: 1, max: 200 }),
   body('content').trim().isLength({ min: 1 }),
   body('replyTo').isEmail()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -67,7 +67,7 @@ router.post('/email', authenticate, authorize(
 
       // Check if user has permission to send emails for this event
       const userRole = req.user!.role
-      if (![UserRole.OVERALL_ADMIN, UserRole.SOFTWARE_ADMIN].includes(userRole)) {
+      if (!([UserRole.ADMIN] as UserRole[]).includes(userRole)) {
         if (event.isWorkshop && userRole !== UserRole.WORKSHOPS_LEAD) {
           return res.status(403).json({ error: 'Only workshops lead can send emails for workshops' })
         }
@@ -217,7 +217,7 @@ router.post('/whatsapp/request', authenticate, authorize(
 ), [
   body('eventId').optional().isString(),
   body('message').trim().isLength({ min: 1, max: 512 })
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -263,9 +263,8 @@ router.post('/whatsapp/request', authenticate, authorize(
 
 // Get WhatsApp requests (admin only)
 router.get('/whatsapp/requests', authenticate, authorize(
-  UserRole.OVERALL_ADMIN, 
-  UserRole.SOFTWARE_ADMIN
-), async (req: AuthRequest, res) => {
+  UserRole.ADMIN
+), async (req: AuthRequest, res: Response) => {
   try {
     const { page = 1, limit = 20, status } = req.query
     const skip = (Number(page) - 1) * Number(limit)
@@ -310,7 +309,7 @@ router.patch('/whatsapp/requests/:id', authenticate, authorize(
   UserRole.ADMIN
 ), [
   body('status').isIn(['APPROVED', 'REJECTED'])
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const { status } = req.body

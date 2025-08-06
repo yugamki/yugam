@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { AdminSidebar } from './sidebar'
 import { AdminHeader } from './header'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/components/auth-provider'
 
 export function AdminLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)

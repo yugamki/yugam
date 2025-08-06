@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import { body, query, validationResult } from 'express-validator'
 import { PrismaClient, UserRole, EventStatus, EventType } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
@@ -14,7 +14,7 @@ router.get('/', [
   query('search').optional().trim(),
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 })
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -84,7 +84,7 @@ router.get('/workshops', [
   query('search').optional().trim(),
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 })
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -197,7 +197,7 @@ router.post('/', authenticate, [
   body('maxTeamSize').optional().isInt({ min: 1 }),
   body('feePerPerson').optional().isFloat({ min: 0 }),
   body('feePerTeam').optional().isFloat({ min: 0 })
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -214,15 +214,15 @@ router.post('/', authenticate, [
       return res.status(403).json({ error: 'Only admins can create combo events' })
     }
 
-    // Only EVENT_TEAM_LEAD and above can create GENERAL/PAID events
+    // Only EVENTS_LEAD and above can create GENERAL/PAID events
     if (!eventData.isWorkshop && 
-        ![UserRole.EVENTS_LEAD, UserRole.ADMIN].includes(userRole)) {
+        !([UserRole.EVENTS_LEAD, UserRole.ADMIN] as UserRole[]).includes(userRole)) {
       return res.status(403).json({ error: 'Only events team lead and above can create events' })
     }
 
-    // Only WORKSHOP_TEAM_LEAD and above can create workshops
+    // Only WORKSHOPS_LEAD and above can create workshops
     if (eventData.isWorkshop && 
-        ![UserRole.WORKSHOPS_LEAD, UserRole.ADMIN].includes(userRole)) {
+        !([UserRole.WORKSHOPS_LEAD, UserRole.ADMIN] as UserRole[]).includes(userRole)) {
       return res.status(403).json({ error: 'Only workshops team lead and above can create workshops' })
     }
 
@@ -277,7 +277,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 
     // Check permissions
     const canEdit = event.creatorId === userId || 
-                   [UserRole.ADMIN, UserRole.EVENTS_LEAD].includes(userRole)
+                   ([UserRole.ADMIN, UserRole.EVENTS_LEAD] as UserRole[]).includes(userRole)
 
     if (!canEdit) {
       return res.status(403).json({ error: 'Not authorized to edit this event' })
@@ -309,10 +309,10 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 })
 
 // Approve/Reject event (admin only)
-router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN, UserRole.EVENT_TEAM_LEAD), [
+router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN, UserRole.EVENTS_LEAD), [
   body('status').isIn(['APPROVED', 'PUBLISHED', 'CANCELLED']),
   body('managerId').optional().isString()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

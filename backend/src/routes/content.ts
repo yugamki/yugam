@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import { body, validationResult } from 'express-validator'
 import { PrismaClient, UserRole } from '@prisma/client'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth'
@@ -71,7 +71,7 @@ router.post('/', authenticate, authorize(UserRole.ADMIN), [
   body('title').trim().isLength({ min: 1, max: 200 }),
   body('content').trim().isLength({ min: 1 }),
   body('isPublished').optional().isBoolean()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -104,7 +104,7 @@ router.put('/:id', authenticate, authorize(UserRole.ADMIN), [
   body('title').optional().trim().isLength({ min: 1, max: 200 }),
   body('content').optional().trim().isLength({ min: 1 }),
   body('isPublished').optional().isBoolean()
-], async (req: AuthRequest, res) => {
+], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

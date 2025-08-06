@@ -1,10 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@/components/theme-provider'
+import { AuthProvider } from '@/components/auth-provider'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { AdminLayout } from '@/components/admin/layout'
 import { HomePage } from '@/pages/home'
+import { LoginPage } from '@/pages/auth/login'
+import { RegisterPage } from '@/pages/auth/register'
+import { Dashboard } from '@/pages/dashboard'
+import { ProtectedRoute } from '@/components/protected-route'
 import { AdminDashboard } from '@/pages/admin/dashboard'
 import { AdminUsers } from '@/pages/admin/users'
 import { UserPermissions } from '@/pages/admin/users/permissions'
@@ -23,7 +28,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="yugam-ui-theme">
-        <Router>
+        <AuthProvider>
+          <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/*" element={
@@ -34,9 +40,13 @@ function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/events" element={<div className="p-8 text-center">Events Page - Coming Soon</div>} />
                     <Route path="/workshops" element={<div className="p-8 text-center">Workshops Page - Coming Soon</div>} />
-                    <Route path="/dashboard" element={<div className="p-8 text-center">User Dashboard - Coming Soon</div>} />
-                    <Route path="/auth/login" element={<div className="p-8 text-center">Login Page - Coming Soon</div>} />
-                    <Route path="/auth/register" element={<div className="p-8 text-center">Register Page - Coming Soon</div>} />
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/auth/login" element={<LoginPage />} />
+                    <Route path="/auth/register" element={<RegisterPage />} />
                     <Route path="/contact" element={<div className="p-8 text-center">Contact Page - Coming Soon</div>} />
                   </Routes>
                 </main>
@@ -45,7 +55,11 @@ function App() {
             } />
             
             {/* Admin Routes */}
-            <Route path="/admin/*" element={<AdminLayout />}>
+            <Route path="/admin/*" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
               <Route index element={<AdminDashboard />} />
               <Route path="events" element={<EventsDashboard />} />
               <Route path="events/manage" element={<ManageEvents />} />
@@ -64,6 +78,7 @@ function App() {
             </Route>
           </Routes>
         </Router>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   )

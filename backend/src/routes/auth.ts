@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { body, validationResult } from 'express-validator'
@@ -19,7 +19,7 @@ router.post('/register', [
   body('college').optional().trim(),
   body('year').optional().trim(),
   body('department').optional().trim()
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -70,11 +70,17 @@ router.post('/register', [
       }
     })
 
+    // Ensure JWT_SECRET exists
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not configured')
+    }
+
     // Generate JWT
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      jwtSecret,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' } as jwt.SignOptions
     )
 
     res.status(201).json({
@@ -92,7 +98,7 @@ router.post('/register', [
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),
   body('password').exists()
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -116,11 +122,17 @@ router.post('/login', [
       return res.status(401).json({ error: 'Invalid credentials' })
     }
 
+    // Ensure JWT_SECRET exists
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not configured')
+    }
+
     // Generate JWT
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      jwtSecret,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' } as jwt.SignOptions
     )
 
     res.json({
