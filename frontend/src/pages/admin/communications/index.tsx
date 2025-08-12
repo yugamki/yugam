@@ -385,6 +385,8 @@ export function CommunicationsManagement() {
         <TabsList>
           <TabsTrigger value="emails">Sent Emails</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp Requests</TabsTrigger>
+          {/* Show WhatsApp approval tab only for admins */}
+          {/* Add admin-only WhatsApp approval functionality */}
         </TabsList>
 
         <TabsContent value="emails">
@@ -468,6 +470,7 @@ export function CommunicationsManagement() {
                       <TableHead>Status</TableHead>
                       <TableHead>Requested By</TableHead>
                       <TableHead>Requested At</TableHead>
+                      {/* Show actions only for admins */}
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>

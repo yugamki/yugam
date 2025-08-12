@@ -81,7 +81,7 @@ export function RegistrationsManagement() {
   const fetchRegistrations = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/registrations?limit=100`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/registrations/admin/all?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -101,7 +101,7 @@ export function RegistrationsManagement() {
   const fetchPaidUsers = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/registrations/paid?limit=100`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/registrations/admin/paid?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -119,7 +119,7 @@ export function RegistrationsManagement() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/registrations/stats`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/registrations/admin/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

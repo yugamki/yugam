@@ -303,4 +303,17 @@ router.get('/registrations', authenticate, async (req: AuthRequest, res) => {
   }
 })
 
+// Get user general pass
+router.get('/general-pass', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const generalPass = await prisma.generalEventPass.findUnique({
+      where: { userId: req.user!.id }
+    })
+
+    res.json({ generalPass })
+  } catch (error) {
+    console.error('Get general pass error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 export default router

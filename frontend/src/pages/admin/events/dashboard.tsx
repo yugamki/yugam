@@ -140,7 +140,7 @@ export function EventsDashboard() {
         </div>
         <Button variant="yugam">
           <Plus className="mr-2 h-4 w-4" />
-          Create Event
+          <a href="/admin/events/create">Create Event</a>
         </Button>
       </div>
 
@@ -235,6 +235,15 @@ export function EventsDashboard() {
                   <div className="font-medium">Create New Event</div>
                   <div className="text-sm text-muted-foreground">Add a new event to the system</div>
                 </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto p-4" asChild>
+                <a href="/admin/events/manage">
+                  <Calendar className="mr-3 h-5 w-5" />
+                  <div className="text-left">
+                    <div className="font-medium">Manage Events</div>
+                    <div className="text-sm text-muted-foreground">View and edit all events</div>
+                  </div>
+                </a>
               </Button>
               <Button variant="outline" className="justify-start h-auto p-4">
                 <AlertCircle className="mr-3 h-5 w-5" />

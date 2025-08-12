@@ -140,7 +140,7 @@ export function WorkshopsDashboard() {
         </div>
         <Button variant="yugam">
           <Plus className="mr-2 h-4 w-4" />
-          Create Workshop
+          <a href="/admin/workshops/create">Create Workshop</a>
         </Button>
       </div>
 
@@ -235,6 +235,15 @@ export function WorkshopsDashboard() {
                   <div className="font-medium">Create New Workshop</div>
                   <div className="text-sm text-muted-foreground">Add a new workshop to the system</div>
                 </div>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto p-4" asChild>
+                <a href="/admin/workshops/manage">
+                  <GraduationCap className="mr-3 h-5 w-5" />
+                  <div className="text-left">
+                    <div className="font-medium">Manage Workshops</div>
+                    <div className="text-sm text-muted-foreground">View and edit all workshops</div>
+                  </div>
+                </a>
               </Button>
               <Button variant="outline" className="justify-start h-auto p-4">
                 <AlertCircle className="mr-3 h-5 w-5" />

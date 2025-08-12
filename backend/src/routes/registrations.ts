@@ -177,6 +177,185 @@ router.get('/:id', authenticate, async (req: AuthRequest, res) => {
   }
 })
 
+// Get all registrations (admin only)
+router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
+  try {
+    const { page = 1, limit = 20, eventType, status } = req.query
+    const skip = (Number(page) - 1) * Number(limit)
+
+    const where: any = {}
+    
+    if (eventType) {
+      where.event = {
+        eventType: eventType
+      }
+    }
+
+    if (status) {
+      where.status = status
+    }
+
+    const [registrations, total] = await Promise.all([
+      prisma.registration.findMany({
+        where,
+        include: {
+          event: {
+            select: {
+              title: true,
+              eventType: true,
+              isWorkshop: true,
+              startDate: true,
+              venue: true
+            }
+          },
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              yugamId: true,
+              college: true
+            }
+          },
+          team: {
+            select: {
+              name: true,
+              members: {
+                include: {
+                  user: {
+                    select: { firstName: true, lastName: true, email: true }
+                  }
+                }
+              }
+            }
+          },
+          payment: {
+            select: {
+              id: true,
+              amount: true,
+              status: true,
+              createdAt: true
+            }
+          }
+        },
+        orderBy: { registeredAt: 'desc' },
+        skip,
+        take: Number(limit)
+      }),
+      prisma.registration.count({ where })
+    ])
+
+    res.json({
+      registrations,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit))
+      }
+    })
+  } catch (error) {
+    console.error('Get admin registrations error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get paid users (admin only)
+router.get('/admin/paid', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query
+    const skip = (Number(page) - 1) * Number(limit)
+
+    const [registrations, total] = await Promise.all([
+      prisma.registration.findMany({
+        where: {
+          payment: {
+            status: 'COMPLETED'
+          }
+        },
+        include: {
+          event: {
+            select: {
+              title: true,
+              isWorkshop: true
+            }
+          },
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              college: true
+            }
+          },
+          payment: {
+            select: {
+              amount: true,
+              createdAt: true
+            }
+          }
+        },
+        orderBy: { registeredAt: 'desc' },
+        skip,
+        take: Number(limit)
+      }),
+      prisma.registration.count({
+        where: {
+          payment: {
+            status: 'COMPLETED'
+          }
+        }
+      })
+    ])
+
+    res.json({
+      registrations,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit))
+      }
+    })
+  } catch (error) {
+    console.error('Get paid users error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get registration stats (admin only)
+router.get('/admin/stats', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
+  try {
+    const [
+      totalRegistrations,
+      confirmedRegistrations,
+      pendingRegistrations,
+      totalRevenue
+    ] = await Promise.all([
+      prisma.registration.count(),
+      prisma.registration.count({
+        where: { status: 'CONFIRMED' }
+      }),
+      prisma.registration.count({
+        where: { status: 'PENDING' }
+      }),
+      prisma.payment.aggregate({
+        where: { status: 'COMPLETED' },
+        _sum: { amount: true }
+      })
+    ])
+
+    res.json({
+      totalRegistrations,
+      confirmedRegistrations,
+      pendingRegistrations,
+      totalRevenue: totalRevenue._sum.amount || 0
+    })
+  } catch (error) {
+    console.error('Get registration stats error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 // Cancel registration
 router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {

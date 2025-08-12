@@ -32,13 +32,13 @@ router.post('/general-pass', authenticate, [
     let amount = 0
     switch (days) {
       case 1:
-        amount = 500
+        amount = 500 // Any 1 day
         break
       case 2:
-        amount = 800
+        amount = 400 // Any 2 days  
         break
       case 3:
-        amount = 1200
+        amount = 300 // All 3 days
         break
       default:
         return res.status(400).json({ error: 'Invalid number of days' })

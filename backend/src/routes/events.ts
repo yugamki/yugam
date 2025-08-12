@@ -214,13 +214,13 @@ router.post('/', authenticate, [
       return res.status(403).json({ error: 'Only admins can create combo events' })
     }
 
-    // Only EVENTS_LEAD and above can create GENERAL/PAID events
+    // Only EVENTS_LEAD and above can create events (not workshops)
     if (!eventData.isWorkshop && 
         !([UserRole.EVENTS_LEAD, UserRole.ADMIN] as UserRole[]).includes(userRole)) {
       return res.status(403).json({ error: 'Only events team lead and above can create events' })
     }
 
-    // Only WORKSHOPS_LEAD and above can create workshops
+    // Only WORKSHOPS_LEAD and above can create workshops  
     if (eventData.isWorkshop && 
         !([UserRole.WORKSHOPS_LEAD, UserRole.ADMIN] as UserRole[]).includes(userRole)) {
       return res.status(403).json({ error: 'Only workshops team lead and above can create workshops' })
@@ -241,6 +241,7 @@ router.post('/', authenticate, [
         startDate,
         endDate,
         creatorId: userId,
+        mode: eventData.isWorkshop ? 'INDIVIDUAL' : eventData.mode, // Workshops are always individual
         status: 'PENDING_APPROVAL'
       },
       include: {
@@ -251,7 +252,7 @@ router.post('/', authenticate, [
     })
 
     res.status(201).json({
-      message: 'Event created successfully and sent for approval',
+      message: `${eventData.isWorkshop ? 'Workshop' : 'Event'} created successfully and sent for approval`,
       event
     })
   } catch (error) {

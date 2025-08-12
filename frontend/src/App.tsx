@@ -17,10 +17,13 @@ import { EventsDashboard } from '@/pages/admin/events/dashboard'
 import { WorkshopsDashboard } from '@/pages/admin/workshops/dashboard'
 import { ManageEvents } from '@/pages/admin/events/manage'
 import { CreateEvent } from '@/pages/admin/events/create'
+import { ManageWorkshops } from '@/pages/admin/workshops/manage'
+import { CreateWorkshop } from '@/pages/admin/workshops/create'
 import { PaymentsManagement } from '@/pages/admin/payments'
 import { AccommodationsManagement } from '@/pages/admin/accommodations'
 import { RegistrationsManagement } from '@/pages/admin/registrations'
 import { CommunicationsManagement } from '@/pages/admin/communications'
+import { EventDetailsPage } from '@/pages/events/[id]'
 
 const queryClient = new QueryClient()
 
@@ -39,6 +42,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/events" element={<div className="p-8 text-center">Events Page - Coming Soon</div>} />
+                    <Route path="/events/:id" element={<EventDetailsPage />} />
                     <Route path="/workshops" element={<div className="p-8 text-center">Workshops Page - Coming Soon</div>} />
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
@@ -65,6 +69,8 @@ function App() {
               <Route path="events/manage" element={<ManageEvents />} />
               <Route path="events/create" element={<CreateEvent />} />
               <Route path="workshops" element={<WorkshopsDashboard />} />
+              <Route path="workshops/manage" element={<ManageWorkshops />} />
+              <Route path="workshops/create" element={<CreateWorkshop />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="users/permissions" element={<UserPermissions />} />
               <Route path="payments" element={<PaymentsManagement />} />

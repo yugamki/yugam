@@ -51,6 +51,8 @@ const getNavigation = (userRole: string) => {
     return [
       ...baseNavigation,
       { name: 'Workshops', href: '/admin/workshops', icon: GraduationCap },
+      { name: 'Manage Workshops', href: '/admin/workshops/manage', icon: GraduationCap },
+      { name: 'Create Workshop', href: '/admin/workshops/create', icon: GraduationCap },
       { name: 'Workshop Coordinators', href: '/admin/workshops/coordinators', icon: Users },
       { name: 'Workshop Reports', href: '/admin/workshops/reports', icon: BarChart3 },
     ]
@@ -60,6 +62,8 @@ const getNavigation = (userRole: string) => {
     return [
       ...baseNavigation,
       { name: 'My Events', href: '/admin/events/my-events', icon: Calendar },
+      { name: 'Manage Events', href: '/admin/events/manage', icon: Calendar },
+      { name: 'Create Event', href: '/admin/events/create', icon: Calendar },
       { name: 'Registrations', href: '/admin/events/registrations', icon: Users },
     ]
   }

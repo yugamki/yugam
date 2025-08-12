@@ -6,10 +6,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { ArrowLeft } from 'lucide-react'
 
-interface EventFormData {
+interface WorkshopFormData {
   title: string
   description: string
   domain: string
@@ -18,13 +17,8 @@ interface EventFormData {
   endDate: string
   duration: number
   eventType: string
-  mode: string
-  minTeamSize?: number
-  maxTeamSize?: number
   expectedParticipants: number
   feePerPerson?: number
-  feePerTeam?: number
-  isWorkshop: boolean
   venue: string
   maxRegistrations?: number
   rules: string
@@ -32,10 +26,10 @@ interface EventFormData {
   contactInfo: string
 }
 
-export function CreateEvent() {
+export function CreateWorkshop() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState<EventFormData>({
+  const [formData, setFormData] = useState<WorkshopFormData>({
     title: '',
     description: '',
     domain: '',
@@ -43,10 +37,8 @@ export function CreateEvent() {
     startDate: '',
     endDate: '',
     duration: 1,
-    eventType: 'GENERAL',
-    mode: 'INDIVIDUAL',
-    expectedParticipants: 50,
-    isWorkshop: false,
+    eventType: 'PAID',
+    expectedParticipants: 30,
     venue: '',
     rules: '',
     prizes: '',
@@ -65,24 +57,28 @@ export function CreateEvent() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          isWorkshop: true,
+          mode: 'INDIVIDUAL' // Workshops are always individual
+        }),
       })
 
       if (response.ok) {
-        navigate('/admin/events/manage')
+        navigate('/admin/workshops/manage')
       } else {
         const error = await response.json()
-        alert(error.error || 'Failed to create event')
+        alert(error.error || 'Failed to create workshop')
       }
     } catch (error) {
-      console.error('Error creating event:', error)
-      alert('Failed to create event')
+      console.error('Error creating workshop:', error)
+      alert('Failed to create workshop')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleInputChange = (field: keyof EventFormData, value: any) => {
+  const handleInputChange = (field: keyof WorkshopFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -95,10 +91,10 @@ export function CreateEvent() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Create {formData.isWorkshop ? 'Workshop' : 'Event'}
+            Create Workshop
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Create a new {formData.isWorkshop ? 'workshop' : 'event'} for Yugam 2025
+            Create a new workshop for Yugam 2025
           </p>
         </div>
       </div>
@@ -110,25 +106,17 @@ export function CreateEvent() {
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
               <CardDescription>
-                Enter the basic details of your {formData.isWorkshop ? 'workshop' : 'event'}
+                Enter the basic details of your workshop
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={formData.isWorkshop}
-                  onCheckedChange={(checked) => handleInputChange('isWorkshop', checked)}
-                />
-                <Label>This is a workshop</Label>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  placeholder="Enter event title"
+                  placeholder="Enter workshop title"
                   required
                 />
               </div>
@@ -139,7 +127,7 @@ export function CreateEvent() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Enter event description"
+                  placeholder="Enter workshop description"
                   rows={4}
                   required
                 />
@@ -152,7 +140,7 @@ export function CreateEvent() {
                     id="domain"
                     value={formData.domain}
                     onChange={(e) => handleInputChange('domain', e.target.value)}
-                    placeholder="e.g., Technical, Cultural"
+                    placeholder="e.g., Technical, Design"
                     required
                   />
                 </div>
@@ -162,7 +150,7 @@ export function CreateEvent() {
                     id="category"
                     value={formData.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
-                    placeholder="e.g., Programming, Dance"
+                    placeholder="e.g., Web Development, AI/ML"
                     required
                   />
                 </div>
@@ -174,74 +162,32 @@ export function CreateEvent() {
                   id="venue"
                   value={formData.venue}
                   onChange={(e) => handleInputChange('venue', e.target.value)}
-                  placeholder="Event venue"
+                  placeholder="Workshop venue"
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Event Configuration */}
+          {/* Workshop Configuration */}
           <Card>
             <CardHeader>
-              <CardTitle>Event Configuration</CardTitle>
+              <CardTitle>Workshop Configuration</CardTitle>
               <CardDescription>
-                Configure the event type and participation details
+                Configure the workshop details and pricing
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="eventType">Event Type *</Label>
+                <Label htmlFor="eventType">Workshop Type *</Label>
                 <Select value={formData.eventType} onValueChange={(value) => handleInputChange('eventType', value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select event type" />
+                    <SelectValue placeholder="Select workshop type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="GENERAL">General Event (Requires General Pass)</SelectItem>
-                    <SelectItem value="PAID">Specific Event (Specific Fee)</SelectItem>
-                    <SelectItem value="COMBO">Combo Event (Admin Only)</SelectItem>
+                    <SelectItem value="PAID">Paid Workshop</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="mode">Participation Mode *</Label>
-                <Select value={formData.mode} onValueChange={(value) => handleInputChange('mode', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select participation mode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="INDIVIDUAL">Individual</SelectItem>
-                    <SelectItem value="TEAM">Team</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {formData.mode === 'TEAM' && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="minTeamSize">Min Team Size</Label>
-                    <Input
-                      id="minTeamSize"
-                      type="number"
-                      value={formData.minTeamSize || ''}
-                      onChange={(e) => handleInputChange('minTeamSize', parseInt(e.target.value))}
-                      placeholder="2"
-                      min="1"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="maxTeamSize">Max Team Size</Label>
-                    <Input
-                      id="maxTeamSize"
-                      type="number"
-                      value={formData.maxTeamSize || ''}
-                      onChange={(e) => handleInputChange('maxTeamSize', parseInt(e.target.value))}
-                      placeholder="5"
-                      min="1"
-                    />
-                  </div>
-                </div>
-              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -251,7 +197,7 @@ export function CreateEvent() {
                     type="number"
                     value={formData.expectedParticipants}
                     onChange={(e) => handleInputChange('expectedParticipants', parseInt(e.target.value))}
-                    placeholder="50"
+                    placeholder="30"
                     min="1"
                     required
                   />
@@ -263,40 +209,25 @@ export function CreateEvent() {
                     type="number"
                     value={formData.maxRegistrations || ''}
                     onChange={(e) => handleInputChange('maxRegistrations', parseInt(e.target.value))}
-                    placeholder="100"
+                    placeholder="50"
                     min="1"
                   />
                 </div>
               </div>
 
-              {(formData.eventType === 'PAID' || formData.eventType === 'COMBO') && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="feePerPerson">Fee Per Person (₹)</Label>
-                    <Input
-                      id="feePerPerson"
-                      type="number"
-                      value={formData.feePerPerson || ''}
-                      onChange={(e) => handleInputChange('feePerPerson', parseFloat(e.target.value))}
-                      placeholder="100"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="feePerTeam">Fee Per Team (₹)</Label>
-                    <Input
-                      id="feePerTeam"
-                      type="number"
-                      value={formData.feePerTeam || ''}
-                      onChange={(e) => handleInputChange('feePerTeam', parseFloat(e.target.value))}
-                      placeholder="500"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="feePerPerson">Workshop Fee (₹) *</Label>
+                <Input
+                  id="feePerPerson"
+                  type="number"
+                  value={formData.feePerPerson || ''}
+                  onChange={(e) => handleInputChange('feePerPerson', parseFloat(e.target.value))}
+                  placeholder="500"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -306,7 +237,7 @@ export function CreateEvent() {
           <CardHeader>
             <CardTitle>Date and Time</CardTitle>
             <CardDescription>
-              Set the event schedule
+              Set the workshop schedule
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -363,18 +294,18 @@ export function CreateEvent() {
                 id="rules"
                 value={formData.rules}
                 onChange={(e) => handleInputChange('rules', e.target.value)}
-                placeholder="Enter event rules and guidelines"
+                placeholder="Enter workshop rules and guidelines"
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prizes">Prizes</Label>
+              <Label htmlFor="prizes">Certificates/Prizes</Label>
               <Textarea
                 id="prizes"
                 value={formData.prizes}
                 onChange={(e) => handleInputChange('prizes', e.target.value)}
-                placeholder="Enter prize details"
+                placeholder="Enter certificate and prize details"
                 rows={3}
               />
             </div>
@@ -398,7 +329,7 @@ export function CreateEvent() {
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? 'Creating...' : `Create ${formData.isWorkshop ? 'Workshop' : 'Event'}`}
+            {loading ? 'Creating...' : 'Create Workshop'}
           </Button>
         </div>
       </form>
