@@ -380,4 +380,75 @@ router.put('/room-types/:id', authenticate, authorize(UserRole.ADMIN), async (re
   }
 })
 
+// Get all accommodations (admin only)
+router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
+  try {
+    const accommodations = await prisma.accommodation.findMany({
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            yugamId: true
+          }
+        },
+        roomType: {
+          select: {
+            name: true,
+            capacity: true,
+            pricePerNight: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    res.json({ accommodations })
+  } catch (error) {
+    console.error('Get admin accommodations error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get accommodation stats (admin only)
+router.get('/admin/stats', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
+  try {
+    const [
+      totalBookings,
+      confirmedBookings,
+      pendingBookings,
+      totalRevenue,
+      totalRooms,
+      availableRooms
+    ] = await Promise.all([
+      prisma.accommodation.count(),
+      prisma.accommodation.count({ where: { isConfirmed: true } }),
+      prisma.accommodation.count({ where: { isConfirmed: false } }),
+      prisma.accommodation.aggregate({
+        where: { isConfirmed: true },
+        _sum: { totalCost: true }
+      }),
+      prisma.roomType.aggregate({
+        _sum: { totalRooms: true }
+      }),
+      prisma.roomType.aggregate({
+        _sum: { availableRooms: true }
+      })
+    ])
+
+    res.json({
+      totalBookings,
+      confirmedBookings,
+      pendingBookings,
+      totalRevenue: totalRevenue._sum.totalCost || 0,
+      totalRooms: totalRooms._sum.totalRooms || 0,
+      availableRooms: availableRooms._sum.availableRooms || 0
+    })
+  } catch (error) {
+    console.error('Get accommodation stats error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 export default router

@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { ArrowLeft } from 'lucide-react'
 
 interface EventFormData {
@@ -24,7 +23,6 @@ interface EventFormData {
   expectedParticipants: number
   feePerPerson?: number
   feePerTeam?: number
-  isWorkshop: boolean
   venue: string
   maxRegistrations?: number
   rules: string
@@ -46,7 +44,6 @@ export function CreateEvent() {
     eventType: 'GENERAL',
     mode: 'INDIVIDUAL',
     expectedParticipants: 50,
-    isWorkshop: false,
     venue: '',
     rules: '',
     prizes: '',
@@ -65,7 +62,7 @@ export function CreateEvent() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, isWorkshop: false }),
       })
 
       if (response.ok) {
@@ -95,10 +92,10 @@ export function CreateEvent() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Create {formData.isWorkshop ? 'Workshop' : 'Event'}
+            Create Event
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Create a new {formData.isWorkshop ? 'workshop' : 'event'} for Yugam 2025
+            Create a new event for Yugam 2025
           </p>
         </div>
       </div>
@@ -110,18 +107,10 @@ export function CreateEvent() {
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
               <CardDescription>
-                Enter the basic details of your {formData.isWorkshop ? 'workshop' : 'event'}
+                Enter the basic details of your event
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={formData.isWorkshop}
-                  onCheckedChange={(checked) => handleInputChange('isWorkshop', checked)}
-                />
-                <Label>This is a workshop</Label>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="title">Title *</Label>
                 <Input
@@ -398,7 +387,7 @@ export function CreateEvent() {
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? 'Creating...' : `Create ${formData.isWorkshop ? 'Workshop' : 'Event'}`}
+            {loading ? 'Creating...' : 'Create Event'}
           </Button>
         </div>
       </form>

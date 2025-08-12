@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Calendar, Users, Settings, Bell, LogOut } from 'lucide-react'
+import { Menu, X, Calendar, Users, Bell, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,6 @@ import { useAuth } from '@/components/auth-provider'
 const navigation = [
   { name: 'Events', href: '/events', icon: Calendar },
   { name: 'Workshops', href: '/workshops', icon: Users },
-  { name: 'Dashboard', href: '/dashboard', icon: Settings },
 ]
 
 export function Header() {
@@ -73,8 +72,10 @@ export function Header() {
                 </Badge>
               </Button>
               <ThemeToggle />
-              <Button variant="outline" asChild>
-                <Link to="/dashboard">Dashboard</Link>
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/dashboard">
+                  <User className="h-4 w-4" />
+                </Link>
               </Button>
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
@@ -134,9 +135,10 @@ export function Header() {
                 <div className="py-6">
                   {user ? (
                     <div className="space-y-3">
-                      <Button variant="outline" className="w-full" asChild>
+                      <Button variant="ghost" className="w-full" asChild>
                         <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                          Dashboard
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
                         </Link>
                       </Button>
                       <Button variant="ghost" className="w-full" onClick={() => {

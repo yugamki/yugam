@@ -276,7 +276,7 @@ export function EventDetailsPage() {
         <Button 
           size="lg" 
           onClick={handleRegister}
-          disabled={registering || (event.maxRegistrations && event.currentRegistrations >= event.maxRegistrations)}
+          disabled={registering || Boolean(event.maxRegistrations && event.currentRegistrations >= event.maxRegistrations)}
         >
           {registering ? 'Registering...' : 'Register Now'}
         </Button>

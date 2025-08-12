@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/components/auth-provider'
+import { ToastProvider } from '@/components/ui/toast-provider'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { AdminLayout } from '@/components/admin/layout'
@@ -12,17 +13,17 @@ import { Dashboard } from '@/pages/dashboard'
 import { ProtectedRoute } from '@/components/protected-route'
 import { AdminDashboard } from '@/pages/admin/dashboard'
 import { AdminUsers } from '@/pages/admin/users'
-import { UserPermissions } from '@/pages/admin/users/permissions'
+import UserPermissions from '@/pages/admin/users/permissions'
 import { EventsDashboard } from '@/pages/admin/events/dashboard'
 import { WorkshopsDashboard } from '@/pages/admin/workshops/dashboard'
 import { ManageEvents } from '@/pages/admin/events/manage'
 import { CreateEvent } from '@/pages/admin/events/create'
 import { ManageWorkshops } from '@/pages/admin/workshops/manage'
 import { CreateWorkshop } from '@/pages/admin/workshops/create'
-import { PaymentsManagement } from '@/pages/admin/payments'
-import { AccommodationsManagement } from '@/pages/admin/accommodations'
-import { RegistrationsManagement } from '@/pages/admin/registrations'
-import { CommunicationsManagement } from '@/pages/admin/communications'
+import PaymentsManagement from '@/pages/admin/payments'
+import AccommodationsManagement from '@/pages/admin/accommodations'
+import RegistrationsManagement from '@/pages/admin/registrations'
+import CommunicationsManagement from '@/pages/admin/communications'
 import { EventDetailsPage } from '@/pages/events/[id]'
 
 const queryClient = new QueryClient()
@@ -32,7 +33,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="yugam-ui-theme">
         <AuthProvider>
-          <Router>
+          <ToastProvider>
+            <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/*" element={
@@ -84,6 +86,7 @@ function App() {
             </Route>
           </Routes>
         </Router>
+            </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -1,7 +1,7 @@
 import express, { Response } from 'express'
 import { body, validationResult } from 'express-validator'
-import { PrismaClient, RegistrationStatus } from '@prisma/client'
-import { authenticate, AuthRequest } from '../middleware/auth'
+import { PrismaClient, RegistrationStatus, UserRole } from '@prisma/client'
+import { authenticate, authorize, AuthRequest } from '../middleware/auth'
 
 const router = express.Router()
 const prisma = new PrismaClient()
@@ -356,6 +356,39 @@ router.get('/admin/stats', authenticate, authorize(UserRole.ADMIN), async (req, 
     res.status(500).json({ error: 'Internal server error' })
   }
 })
+// Update registration status (admin only)
+router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params
+    const { status } = req.body
+
+    const registration = await prisma.registration.findUnique({
+      where: { id }
+    })
+
+    if (!registration) {
+      return res.status(404).json({ error: 'Registration not found' })
+    }
+
+    const updatedRegistration = await prisma.registration.update({
+      where: { id },
+      data: { status },
+      include: {
+        user: { select: { firstName: true, lastName: true, email: true } },
+        event: { select: { title: true } }
+      }
+    })
+
+    res.json({
+      message: 'Registration status updated successfully',
+      registration: updatedRegistration
+    })
+  } catch (error) {
+    console.error('Update registration status error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Cancel registration
 router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
